@@ -97,8 +97,12 @@ export class AuthService {
      */
     async joinWithEmail(user: Pick<UserModel,'email'|'password'|'nickname' > ){
 
-        const hash = bcrypt.hash(user.password, HASH_ROUNDS);
-        const newUser = await this.UsersService.createUser(user);
+        const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
+
+        const newUser = await this.UsersService.createUser({
+            ...user,
+            password: hash // 비밀번호는 해시로 저장
+        });
 
         return this.loginUser(newUser);
 
