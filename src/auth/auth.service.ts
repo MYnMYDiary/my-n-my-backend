@@ -68,7 +68,7 @@ export class AuthService {
         // 비밀번호 확인
         // 1) 입력된 비밀번호
         // 2) 기존 hash
-        const passOk = bcrypt.compare(user.password, findedUser.password)
+        const passOk = await bcrypt.compare(user.password, findedUser.password)
 
         if(!passOk){
             throw new UnauthorizedException('비밀번호가 올바르지 않습니다.')

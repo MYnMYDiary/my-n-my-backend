@@ -37,6 +37,7 @@ const RAW_RUNTIME_STATE =
           ["@nestjs/typeorm", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:11.0.0"],\
           ["@types/bcrypt", "npm:5.0.2"],\
           ["@types/bcryptjs", "npm:2.4.6"],\
+          ["@types/cookie-parser", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:1.4.8"],\
           ["@types/express", "npm:4.17.21"],\
           ["@types/jest", "npm:29.5.14"],\
           ["@types/node", "npm:20.17.12"],\
@@ -45,6 +46,7 @@ const RAW_RUNTIME_STATE =
           ["@yarnpkg/pnpify", "npm:4.1.3"],\
           ["bcrypt", "npm:5.1.1"],\
           ["bcryptjs", "npm:2.4.3"],\
+          ["cookie-parser", "npm:1.4.7"],\
           ["dotenv", "npm:16.4.7"],\
           ["dotenv-cli", "npm:8.0.0"],\
           ["jest", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:29.7.0"],\
@@ -1988,6 +1990,26 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@types/cookie-parser", [\
+      ["npm:1.4.8", {\
+        "packageLocation": "../../../../.yarn/berry/cache/@types-cookie-parser-npm-1.4.8-fa95028070-10c0.zip/node_modules/@types/cookie-parser/",\
+        "packageDependencies": [\
+          ["@types/cookie-parser", "npm:1.4.8"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:1.4.8", {\
+        "packageLocation": "./.yarn/__virtual__/@types-cookie-parser-virtual-1166e5b3a2/5/.yarn/berry/cache/@types-cookie-parser-npm-1.4.8-fa95028070-10c0.zip/node_modules/@types/cookie-parser/",\
+        "packageDependencies": [\
+          ["@types/cookie-parser", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:1.4.8"],\
+          ["@types/express", "npm:4.17.21"]\
+        ],\
+        "packagePeers": [\
+          "@types/express"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@types/cookiejar", [\
       ["npm:2.1.5", {\
         "packageLocation": "../../../../.yarn/berry/cache/@types-cookiejar-npm-2.1.5-f36531e52d-10c0.zip/node_modules/@types/cookiejar/",\
@@ -2675,6 +2697,7 @@ const RAW_RUNTIME_STATE =
           ["@nestjs/typeorm", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:11.0.0"],\
           ["@types/bcrypt", "npm:5.0.2"],\
           ["@types/bcryptjs", "npm:2.4.6"],\
+          ["@types/cookie-parser", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:1.4.8"],\
           ["@types/express", "npm:4.17.21"],\
           ["@types/jest", "npm:29.5.14"],\
           ["@types/node", "npm:20.17.12"],\
@@ -2683,6 +2706,7 @@ const RAW_RUNTIME_STATE =
           ["@yarnpkg/pnpify", "npm:4.1.3"],\
           ["bcrypt", "npm:5.1.1"],\
           ["bcryptjs", "npm:2.4.3"],\
+          ["cookie-parser", "npm:1.4.7"],\
           ["dotenv", "npm:16.4.7"],\
           ["dotenv-cli", "npm:8.0.0"],\
           ["jest", "virtual:e29eab709fc67980d97d132e740692c97ea5e1dbe653ded45165bea37cf388c6eac533a2da01ee02c7265f0c7c71a698b166d0574679b90ad857ab5440bd679f#npm:29.7.0"],\
@@ -3926,6 +3950,24 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../../.yarn/berry/cache/cookie-npm-0.7.1-f01524ff99-10c0.zip/node_modules/cookie/",\
         "packageDependencies": [\
           ["cookie", "npm:0.7.1"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["npm:0.7.2", {\
+        "packageLocation": "../../../../.yarn/berry/cache/cookie-npm-0.7.2-6ea9ee4231-10c0.zip/node_modules/cookie/",\
+        "packageDependencies": [\
+          ["cookie", "npm:0.7.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["cookie-parser", [\
+      ["npm:1.4.7", {\
+        "packageLocation": "../../../../.yarn/berry/cache/cookie-parser-npm-1.4.7-970a70a2fd-10c0.zip/node_modules/cookie-parser/",\
+        "packageDependencies": [\
+          ["cookie-parser", "npm:1.4.7"],\
+          ["cookie", "npm:0.7.2"],\
+          ["cookie-signature", "npm:1.0.6"]\
         ],\
         "linkType": "HARD"\
       }]\
