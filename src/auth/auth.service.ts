@@ -1,17 +1,26 @@
 import { UsersService } from './../users/users.service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from 'src/users/entities/user.entity';
 import { HASH_ROUNDS, JWT_SECREAT } from './const/auth.const';
 import * as bcrypt from 'bcrypt';
+import nodemailer, {Transporter} from 'nodemailer';
+import { MailService } from './mail.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
 
 @Injectable()
 export class AuthService {
 
+    private transporter : Transporter;
+
     constructor(
         private readonly jwtService:JwtService,
-        private readonly UsersService:UsersService,
+        private readonly usersService:UsersService,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     ){}
+
 
     /**
      * accessToken과 refreshToken을 sign하는 로직
@@ -59,7 +68,7 @@ export class AuthService {
     async validateLogin( user: Pick<UserModel,'email'|'password' > ){
   
         // 사용자가 존재하는지 확인(email)
-        const findedUser = await this.UsersService.findUserByEmail(user.email)
+        const findedUser = await this.usersService.findUserByEmail(user.email)
         
         if(!findedUser){
             throw new UnauthorizedException('존재하지 않는 사용자입니다.')
@@ -88,7 +97,7 @@ export class AuthService {
         // 로그인 검증(email, password)으로 찾은 사용자
         const findedUser = await this.validateLogin(user);
 
-        // 사용자의 accdssToken과 refreshToken 반환
+        // 사용자의 accessToken과 refreshToken 반환
         return this.loginUser(findedUser)
     }
 
@@ -96,12 +105,21 @@ export class AuthService {
      * 이메일로 회원가입
      */
     async joinWithEmail(user: Pick<UserModel,'email'|'password'|'nickname' > ){
+        const hash = await bcrypt.hash(user.password, HASH_ROUNDS); // 비밀번호 암호화
 
-        const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
+        const isVerified = await this.cacheManager.get<string>(user.email);
 
-        const newUser = await this.UsersService.createUser({
+        if (isVerified == null || isVerified == undefined) {
+            throw new NotFoundException('인증하기 안함.');
+        }
+
+        if(isVerified && isVerified != "true"){
+            throw new NotFoundException('인증되지 않았습니다.');
+        }
+
+        const newUser = await this.usersService.createUser({
             ...user,
-            password: hash // 비밀번호는 해시로 저장
+            password: hash, // 비밀번호는 해시로 저장
         });
 
         return this.loginUser(newUser);
