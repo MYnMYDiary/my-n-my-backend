@@ -37,7 +37,7 @@ export class DiaryController {
     @Body('title') title ?: string,
     @Body('content') content ?: string ){
 
-      return this.diaryService.editDaiary(id, title, content);
+      return this.diaryService.editDaiary(id, title ?? '', content ?? '');
 
   }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserModel } from 'src/users/entities/user.entity';
 import { MailService } from './mail.service';
@@ -10,11 +10,35 @@ export class AuthController {
     private readonly mailService: MailService
   ) {}
 
+  @Post('token/access')
+  createTokenAccess(
+    @Headers('authorization') rawToken: string,
+  ){
+    const token = this.authService.extractTokenFromHeader(rawToken, true) //Bearer토큰
+    const newToken = this.authService.rotateToken(token, false) // accessToken 발급
+
+    return{ accessToken: newToken }
+  }
+
+  @Post('token/refresh')
+  createTokenRefresh(
+    @Headers('authorization') rawToken: string,
+  ){
+    const token = this.authService.extractTokenFromHeader(rawToken, true) //Bearer토큰
+    const newToken = this.authService.rotateToken(token, true) // refreshToken 발급
+
+    return{ refreshToken: newToken }
+  }
+
   @Post('login/email')
   loginEmail(
+    // @Headers('authorization') rawToken: string, => BasicToken 사용 시
     @Body('user') user: Pick<UserModel,'email'|'password' >,
-  ){
-      return this.authService.loginWithEmail(user);
+  ) {
+    // const token= this.authService.extractTokenFromHeader(rawToken, false); //Basic토큰
+    // const credetials = this.authService.decodeBasicToken(token); //토큰으로 email과 password 생성
+
+    return this.authService.loginWithEmail(user);
   }
 
   @Post('join/email')

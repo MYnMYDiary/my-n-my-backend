@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "lib": ["esnext", "dom"],
+    "types": ["node"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -12,16 +15,42 @@
     "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "moduleResolution": "node",  // PnP 환경에서 필수
-    "resolveJsonModule": true,   // PnP와 호환성 확보
-    "strict": true,
-    "paths": {
-      "@nestjs/*": [".yarn/cache/@nestjs-*"]
-    }
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true
   }
 }
+
+
+
+// {
+//   "compilerOptions": {
+//     "lib": ["esnext", "dom"],
+//     "types": ["node"],
+//     "module": "commonjs",
+//     "declaration": true,
+//     "removeComments": true,
+//     "emitDecoratorMetadata": true,
+//     "experimentalDecorators": true,
+//     "allowSyntheticDefaultImports": true,
+//     "target": "ES2021",
+//     "sourceMap": true,
+//     "outDir": "./dist",
+//     "baseUrl": ".",
+//     "incremental": true,
+//     "skipLibCheck": true,
+//     "strictNullChecks": false,
+//     "noImplicitAny": false,
+//     "strictBindCallApply": false,
+//     "forceConsistentCasingInFileNames": false,
+//     "noFallthroughCasesInSwitch": false,
+//     "moduleResolution": "node",  // PnP 환경에서 필수
+//     "resolveJsonModule": true,   // PnP와 호환성 확보
+//     "esModuleInterop": true,
+//     "strict": true,
+//     "paths": {
+//       "@nestjs/*": [".yarn/cache/@nestjs-*"]
+//     }
+//   }
+// }
