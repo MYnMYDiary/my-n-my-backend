@@ -2,7 +2,7 @@ import { UsersService } from './../users/users.service';
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from 'src/users/entities/user.entity';
-import { HASH_ROUNDS, JWT_SECREAT } from './const/auth.const';
+import { HASH_ROUNDS, JWT_SECRET } from './const/auth.const';
 import * as bcrypt from 'bcrypt';
 import nodemailer, {Transporter} from 'nodemailer';
 import { MailService } from './mail.service';
@@ -23,32 +23,87 @@ export class AuthService {
 
 
     /**
-     * accessToken과 refreshToken을 sign하는 로직
-     * 
-     * Payload에 들어갈 정보
-     * 1) email
-     * 2) sub => id를 말한다. 이 상황에서는 사용자의 ID 이 값으로 사용자 정보를 DB에서 가져옴
-     * 3) type : 'access' | 'refresh'
+     * 새로운 토큰을 발급하는 함수
+     * @param user 기존 유저의 email, id, tokenType
+     * @param isRefreshToken 
+     * @returns accessToken(5분) | refreshToken(1시간)
      */
     signToken(user: Pick<UserModel, 'email' | 'id' >, isRefreshToken:boolean ){
         const payload = {
             email: user.email,
-            sub: user.id,
+            sub: user.id, //sub => id를 말한다. 이 상황에서는 사용자의 ID 이 값으로 사용자 정보를 DB에서 가져옴
             type: isRefreshToken ? 'refresh' : 'access',
         }
 
         return this.jwtService.sign(payload, {
-            secret: JWT_SECREAT,
-            // refreshToken => 1시간
-            // accessToekn => 5분
-            expiresIn: isRefreshToken ? 3600 : 300,
+            secret: JWT_SECRET,
+            expiresIn: isRefreshToken ? 3600 : 300, // refreshToken => 1시간 accessToekn => 5분
         });
     }
 
     /**
+     * 헤더로 들어온 토큰을 추출하는 함수
+     * @param header Basic {token} | Bearer {token}
+     * @param isBearer true:'Bearer' false: 'Basic'
+     */
+    extractTokenFromHeader(header:string, isBearer:boolean){
+        const splitToken = header.split(' ');
+        const prefix = isBearer ? 'Bearer' : 'Basic';
+
+        if(splitToken.length !== 2 || splitToken[0] !== prefix ){
+            throw new UnauthorizedException('잘못된 토큰입니다.');
+        }
+        const token = splitToken[1];
+
+        return token;
+    }
+
+    /**
+     * BasicToken을 디코드 하는 함수
+     * @param base64String 
+     * @returns email password
+     */
+    decodeBasicToken(base64String:string){
+        const decoded = Buffer.from(base64String, 'base64').toString('utf-8') // email:password
+        const split = decoded.split(':'); // [email, password]
+
+        if(split.length !== 2){
+            throw new UnauthorizedException('잘못된 유형의 토큰입니다.');
+        }
+
+        const email = split[0];
+        const password = split[1];
+
+        return {email, password};
+    }
+
+    /**
+     * 토큰 검증
+     */
+    verifyToken(token:string){
+        return this.jwtService.verify(token, {secret: JWT_SECRET})
+    }
+
+    /**
+     * 토큰을 재발급
+     * @param token 
+     * @param isRefreshToken 
+     * @returns true => refreshToken, false => accessToken
+     */
+    rotateToken(token:string, isRefreshToken: boolean){
+        const decoded = this.jwtService.verify(token, {secret:JWT_SECRET});
+
+        if(decoded.type != 'refresh'){
+            throw new UnauthorizedException('토큰 재발급은 refreshToken으로만 가능합니다.');
+        }
+
+        return this.signToken({...decoded},isRefreshToken);
+    }
+
+    /**
      * 로그인 함수
-     * : accessToken과 refreshToken을 반환하는 로직
-     * @param user
+     * @param {UserModel} user
+     * @return accessToken, refreshToken
      */
     loginUser( user: Pick<UserModel,'email'|'id' >) {
         return {
@@ -58,7 +113,6 @@ export class AuthService {
     }
 
     /**
-     * 로그인 검증 함수 :
      * 로그인을 할 때 필요한 기본적인 검증 진행
      * 1) 사용자가 존재하는지 확인
      * 2) 비밀번호가 맞는지 확인
