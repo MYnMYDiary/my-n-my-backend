@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiaryModel } from './entities/diary.entity';
 import { UserModel } from 'src/users/entities/user.entity';
+import { CategoryModel } from './entities/category.entity';
+import { SpaceModel } from './entities/space.entity';
 
 @Injectable()
 export class DiaryService {
@@ -17,17 +19,21 @@ export class DiaryService {
     */
     async getAllDiary() {
       return this.diaryRepository
-        .createQueryBuilder('diary')
-        .leftJoinAndSelect('diary.user', 'user') // 관계가 설정된 경우
-        .select([
-          'diary.id',
-          'diary.title',
-          'diary.content',
-          'user.nickname', // user 테이블의 nickname 가져오기
-          'diary.createdAt',
-        ])
-        .orderBy('diary.createdAt', 'ASC')
-        .getMany();
+      .createQueryBuilder('diary')
+      .leftJoinAndSelect('diary.category', 'category') // Diary → Category 관계 사용
+      .leftJoinAndSelect('category.space', 'space') // Category → Space 관계 사용
+      .leftJoinAndSelect('diary.user', 'user') // Diary → User 관계 사용
+      .select([
+        'space.name',  // alias 추가
+        'category.name',
+        'user.nickname',
+        'diary.id',
+        'diary.title',
+        'diary.content',
+        'diary.createdAt',
+      ])
+      .orderBy('diary.createdAt', 'ASC')
+      .getRawMany(); // 특정 필드만 선택했으므로 getRawMany() 사용
     }
 
     /** 
@@ -35,12 +41,26 @@ export class DiaryService {
     */
     async getDiaryById(id : number) {
 
-      const diary = await this.diaryRepository.findOne({
-        relations: ['nickname'],
-        where: {
-          id:id,
-        }
-      })
+      const diary = await this.diaryRepository
+        .createQueryBuilder('diary')
+        .leftJoinAndSelect('diary.category', 'category') // Diary → Category 관계 사용
+        .leftJoinAndSelect('category.space', 'space') // Category → Space 관계 사용
+        .leftJoinAndSelect('diary.user', 'user') // Diary → User 관계 사용
+        .select([
+          'space.name',  // alias 추가
+          'category.name',
+          'user.nickname',
+          'diary.id',
+          'diary.title',
+          'diary.content',
+          'diary.createdAt',
+          'diary.updatedAt',
+          'diary.likeCount',
+          'diary.commentCount'
+        ])
+        .orderBy('diary.createdAt', 'ASC')
+        .getRawMany();
+
 
         if(!diary){
           throw new NotFoundException();
@@ -51,12 +71,13 @@ export class DiaryService {
 
     /** 
     * 다이어리 업로드
-    * @param data data.title, data.content
+    * @param data userId, categoryId, title, content
     */
-    async uploadDiary( userId: number, title: string, content:string) {
+    async uploadDiary( userId: number, categoryId: string, title: string, content:string) {
 
       const diary = this.diaryRepository.create({
         user: {id: userId},
+        category: {id: categoryId},
         title,
         content,
         likeCount: 0,

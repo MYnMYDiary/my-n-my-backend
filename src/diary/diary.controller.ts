@@ -26,8 +26,9 @@ export class DiaryController {
     @Body('user_id' ) userId : number,
     @Body('title') title : string,
     @Body('content') content : string,
+    @Body('categoryId') categoryId: string,
   ){
-    return this.diaryService.uploadDiary(userId, title, content);
+    return this.diaryService.uploadDiary(userId,categoryId, title, content);
   }
 
 

@@ -9,6 +9,8 @@ import { UserModel } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CommonModule } from './common/common.module';
+import { SpaceModel } from './diary/entities/space.entity';
+import { CategoryModel } from './diary/entities/category.entity';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { CommonModule } from './common/common.module';
       entities: [
         DiaryModel,
         UserModel,
+        SpaceModel,
+        CategoryModel,
       ],
       synchronize: true, //실제로 운영할 때는 false로 해야된다 안그러면 큰일난다!
     }),
