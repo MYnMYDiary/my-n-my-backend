@@ -16,10 +16,18 @@ export class DiaryService {
      * 모든 다이어리를 다 가져옴
     */
     async getAllDiary() {
-      return this.diaryRepository.find({
-        relations: ['nickname'],
-        order:{createAt: 'ASC'}
-      });
+      return this.diaryRepository
+        .createQueryBuilder('diary')
+        .leftJoinAndSelect('diary.user', 'user') // 관계가 설정된 경우
+        .select([
+          'diary.id',
+          'diary.title',
+          'diary.content',
+          'user.nickname', // user 테이블의 nickname 가져오기
+          'diary.createdAt',
+        ])
+        .orderBy('diary.createdAt', 'ASC')
+        .getMany();
     }
 
     /** 
@@ -48,7 +56,7 @@ export class DiaryService {
     async uploadDiary( userId: number, title: string, content:string) {
 
       const diary = this.diaryRepository.create({
-        nickname: {id: userId},
+        user: {id: userId},
         title,
         content,
         likeCount: 0,

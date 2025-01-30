@@ -1,14 +1,13 @@
+import { BaseModel } from "src/common/entities/base.entity";
 import { UserModel } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: "Diary"})
-export class DiaryModel {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class DiaryModel extends BaseModel {
 
     @ManyToOne( () => UserModel, (user) => user.diarys, { nullable: false})
-    nickname: UserModel;
+    @JoinColumn({ name: "userId" }) // ✅ 외래 키 설정
+    user: UserModel;
 
     @Column()
     title: string;
@@ -22,13 +21,4 @@ export class DiaryModel {
     @Column({name: "comment_count"})
     commentCount: number;
 
-    @Column({
-        type: 'timestamptz',
-        default: () => 'CURRENT_TIMESTAMP',
-        transformer: {
-          from: (value: Date) => new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), //DB에서 가져올 때
-          to: (value: string | Date) => (typeof value === 'string' ? new Date(value) : value),  // DB에 저장할 때
-        },
-      })
-      createAt: string;
   }

@@ -1,5 +1,5 @@
 // nest g resource로 폴더를 만들 수 있다
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { UserModel } from 'src/users/entities/user.entity';
 
@@ -15,7 +15,7 @@ export class DiaryController {
 
   
   @Get(':id')
-  getDiary(@Param('id') id: number){
+  getDiary(@Param('id', ParseIntPipe ) id: number){
 
     return this.diaryService.getDiaryById(id);
   }
@@ -23,7 +23,7 @@ export class DiaryController {
 
   @Post()
   postDiary(
-    @Body('user_id') userId : number,
+    @Body('user_id' ) userId : number,
     @Body('title') title : string,
     @Body('content') content : string,
   ){
@@ -33,7 +33,7 @@ export class DiaryController {
 
   @Put(':id')
   putDiary(
-    @Param('id') id : number,
+    @Param('id', ParseIntPipe) id : number,
     @Body('title') title ?: string,
     @Body('content') content ?: string ){
 
@@ -42,7 +42,7 @@ export class DiaryController {
   }
 
   @Delete(':id')
-  deleteDiary(@Param('id') id : number){
+  deleteDiary(@Param('id', ParseIntPipe) id : number){
     return this.diaryService.deleteDiary(id);
   }
 

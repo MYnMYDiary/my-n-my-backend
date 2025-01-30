@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { UserModel } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     }),
     DiaryModule,
     UsersModule,
-    AuthModule, 
+    AuthModule,
+    CommonModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

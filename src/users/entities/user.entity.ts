@@ -1,14 +1,12 @@
 import { DiaryModel } from "src/diary/entities/diary.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserRole } from "../const/user.const";
+import { BaseModel } from "src/common/entities/base.entity";
 
 @Entity({ name: "User" })
-export class UserModel {
+export class UserModel extends BaseModel {
 
     // 컬럼
-
-    @PrimaryGeneratedColumn()
-    id: number;
 
     /**
      * 이메일
@@ -38,9 +36,10 @@ export class UserModel {
     })
     role: UserRole;
 
+
     // Relations
 
-    @OneToMany( () => DiaryModel, (diary) => diary.nickname)
+    @OneToMany( () => DiaryModel, (diary) => diary.user)
     diarys : DiaryModel[];
 
 }
