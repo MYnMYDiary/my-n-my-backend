@@ -35,7 +35,7 @@ export class UsersService {
     /**
      * 이메일로 사용자 검색
      * @param email
-     * @returns 
+     * @returns user = {id, email, nickname, password, role, updatedAt, createdAt }
      */
     async findUserByEmail( email: string ) {
         return this.userRepository.findOne({ where: { email }})

@@ -5,6 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from 'src/users/users.module';
 import { MailService } from './mail.service';
 import { CacheModule } from '@nestjs/cache-manager';
+import { AccessTokenGuard } from './guard/bearer-token.guard';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
@@ -13,9 +15,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService, 
-    MailService,
-  ],
+  providers: [ AuthService, MailService,AccessTokenGuard,],
+  exports: [AuthService, AccessTokenGuard, UsersModule],
 })
 export class AuthModule {}

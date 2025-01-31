@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Header, Headers, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserModel } from 'src/users/entities/user.entity';
 import { MailService } from './mail.service';
+import { RefreshTokenGuard } from './guard/bearer-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -11,6 +12,7 @@ export class AuthController {
   ) {}
 
   @Post('token/access')
+  @UseGuards(RefreshTokenGuard)
   createTokenAccess(
     @Headers('authorization') rawToken: string,
   ){
@@ -21,6 +23,7 @@ export class AuthController {
   }
 
   @Post('token/refresh')
+  @UseGuards(RefreshTokenGuard)
   createTokenRefresh(
     @Headers('authorization') rawToken: string,
   ){
