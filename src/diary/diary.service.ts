@@ -32,6 +32,7 @@ export class DiaryService {
         'diary.content',
         'diary.createdAt',
       ])
+      .where('space.id = :id', { id: 'DAKU' }) // category.id가 'DAKU'인 데이터만 필터링
       .orderBy('diary.createdAt', 'ASC')
       .getRawMany(); // 특정 필드만 선택했으므로 getRawMany() 사용
     }

@@ -45,6 +45,7 @@ export class AuthService {
      * 헤더로 들어온 토큰을 추출하는 함수
      * @param header Basic {token} | Bearer {token}
      * @param isBearer true:'Bearer' false: 'Basic'
+     * @returns BearerToken | AccessToken
      */
     extractTokenFromHeader(header:string, isBearer:boolean){
         const splitToken = header.split(' ');
@@ -79,9 +80,14 @@ export class AuthService {
 
     /**
      * 토큰 검증
+     * @returns token 안에 있는 payload
      */
     verifyToken(token:string){
-        return this.jwtService.verify(token, {secret: JWT_SECRET})
+        try {
+            return this.jwtService.verify(token, {secret: JWT_SECRET})
+        } catch (error) {
+            throw new UnauthorizedException('만료되거나 잘못된 토큰 입니다,');
+        }
     }
 
     /**

@@ -5,7 +5,7 @@ import { BaseModel } from "src/common/entities/base.entity";
 
 @Entity({ name: "User" })
 export class UserModel extends BaseModel {
-
+    
     // 컬럼
 
     /**
