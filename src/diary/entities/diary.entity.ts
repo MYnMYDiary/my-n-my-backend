@@ -2,6 +2,7 @@ import { BaseModel } from "src/common/entities/base.entity";
 import { UserModel } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { CategoryModel } from "./category.entity";
+import { IsString } from "class-validator";
 
 @Entity({ name: "Diary"})
 export class DiaryModel extends BaseModel {
@@ -15,9 +16,11 @@ export class DiaryModel extends BaseModel {
     category: CategoryModel;
 
     @Column()
+    @IsString({message:'title은 string 타입을 넣어줘야 합니다.'})
     title: string;
 
     @Column()
+    @IsString({message:'content는 string 타입을 넣어줘야 합니다.'})
     content: string;
 
     @Column({name: "like_count"})
