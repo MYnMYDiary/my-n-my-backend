@@ -1,10 +1,10 @@
 // nest g resource로 폴더를 만들 수 있다
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DiaryService } from './diary.service';
-import { UserModel } from 'src/users/entities/user.entity';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { CreateDiaryDto } from './dto/create-diary.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('diary')
@@ -26,12 +26,14 @@ export class DiaryController {
 
   @Post()
   @UseGuards(AccessTokenGuard)
+  @UseInterceptors(FileInterceptor('image'))
   postDiary(
     @User('id') userId: number,
     @Body() diary: CreateDiaryDto,
+    @UploadedFile() file: Express.Multer.File,
     @Body('categoryId') categoryId: string,
   ){
-    return this.diaryService.uploadDiary(userId, categoryId, diary);
+    return this.diaryService.uploadDiary(userId, categoryId, diary, file.filename);
   }
 
 

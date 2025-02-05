@@ -6,6 +6,7 @@ import { UserModel } from 'src/users/entities/user.entity';
 import { CategoryModel } from './entities/category.entity';
 import { SpaceModel } from './entities/space.entity';
 import { CreateDiaryDto } from './dto/create-diary.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class DiaryService {
@@ -19,7 +20,8 @@ export class DiaryService {
      * 모든 다이어리를 다 가져옴
     */
     async getAllDiary() {
-      return this.diaryRepository
+
+      const rawData = this.diaryRepository
       .createQueryBuilder('diary')
       .leftJoinAndSelect('diary.category', 'category') // Diary → Category 관계 사용
       .leftJoinAndSelect('category.space', 'space') // Category → Space 관계 사용
@@ -30,12 +32,15 @@ export class DiaryService {
         'user.nickname',
         'diary.id',
         'diary.title',
+        "CONCAT('/public/diary/', diary.image) AS diary_image",
         'diary.content',
         'diary.createdAt',
       ])
       .where('space.id = :id', { id: 'DAKU' }) // category.id가 'DAKU'인 데이터만 필터링
       .orderBy('diary.createdAt', 'ASC')
       .getRawMany(); // 특정 필드만 선택했으므로 getRawMany() 사용
+
+      return plainToInstance(DiaryModel, rawData);
     }
 
     /** 
@@ -75,12 +80,13 @@ export class DiaryService {
     * 다이어리 업로드
     * @param data userId, categoryId, title, content
     */
-    async uploadDiary( userId: number, categoryId: string, diaryDto: CreateDiaryDto) {
+    async uploadDiary( userId: number, categoryId: string, diaryDto: CreateDiaryDto, image: string) {
 
       const diary = this.diaryRepository.create({
         user: {id: userId},
         category: {id: categoryId},
         ...diaryDto,
+        image,
         likeCount: 0,
         commentCount: 0
       })
