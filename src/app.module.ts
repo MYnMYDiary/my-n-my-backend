@@ -11,9 +11,16 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { CommonModule } from './common/common.module';
 import { SpaceModel } from './diary/entities/space.entity';
 import { CategoryModel } from './diary/entities/category.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 
 @Module({
   imports: [
+    // 이미지
+    ServeStaticModule.forRoot({
+      rootPath: PUBLIC_FOLDER_PATH,
+      serveRoot: '/public', // public/diary/1111.jpg
+    }),
     //인증번호를 저장해둘 메모리 기반 캐싱
     CacheModule.register({
       isGlobal: true, // 전역에서 사용 가능
