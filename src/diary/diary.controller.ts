@@ -27,13 +27,14 @@ export class DiaryController {
   @Post()
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(FileInterceptor('image'))
-  postDiary(
+  async postDiary(
     @User('id') userId: number,
-    @Body() diary: CreateDiaryDto,
-    @UploadedFile() file: Express.Multer.File,
     @Body('categoryId') categoryId: string,
+    @Body() diary: CreateDiaryDto,
+    // @UploadedFile() file: Express.Multer.File,
   ){
-    return this.diaryService.uploadDiary(userId, categoryId, diary, file.filename);
+    await this.diaryService.createDiaryImage(diary);
+    return this.diaryService.uploadDiary(userId, categoryId, diary);
   }
 
 
