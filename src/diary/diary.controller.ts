@@ -4,6 +4,7 @@ import { DiaryService } from './diary.service';
 import { UserModel } from 'src/users/entities/user.entity';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
+import { CreateDiaryDto } from './dto/create-diary.dto';
 
 
 @Controller('diary')
@@ -27,11 +28,10 @@ export class DiaryController {
   @UseGuards(AccessTokenGuard)
   postDiary(
     @User('id') userId: number,
-    @Body('title') title : string,
-    @Body('content') content : string,
+    @Body() diary: CreateDiaryDto,
     @Body('categoryId') categoryId: string,
   ){
-    return this.diaryService.uploadDiary(userId, categoryId, title, content);
+    return this.diaryService.uploadDiary(userId, categoryId, diary);
   }
 
 

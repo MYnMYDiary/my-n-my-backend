@@ -1,13 +1,13 @@
 import { UsersService } from './../users/users.service';
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { UserModel } from 'src/users/entities/user.entity';
 import { HASH_ROUNDS, JWT_SECRET } from './const/auth.const';
 import * as bcrypt from 'bcrypt';
-import nodemailer, {Transporter} from 'nodemailer';
-import { MailService } from './mail.service';
+import {Transporter} from 'nodemailer';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { Response } from 'express';
 
 
 @Injectable()
@@ -25,19 +25,19 @@ export class AuthService {
     /**
      * 새로운 토큰을 발급하는 함수
      * @param user 기존 유저의 email, id, tokenType
-     * @param isRefreshToken 
+     * @param isRefreshToken true: refreshToken | false: accessToken
      * @returns accessToken(5분) | refreshToken(1시간)
      */
     signToken(user: Pick<UserModel, 'email' | 'id' >, isRefreshToken:boolean ){
         const payload = {
             email: user.email,
-            sub: user.id, //sub => id를 말한다. 이 상황에서는 사용자의 ID 이 값으로 사용자 정보를 DB에서 가져옴
+            sub: user.id, // sub => ID (JWT 표준 클레임) 이 상황에서는 사용자의 ID 이 값으로 사용자 정보를 DB에서 가져옴
             type: isRefreshToken ? 'refresh' : 'access',
         }
 
         return this.jwtService.sign(payload, {
             secret: JWT_SECRET,
-            expiresIn: isRefreshToken ? 3600 : 300, // refreshToken => 1시간 accessToekn => 5분
+            expiresIn: isRefreshToken ? 60 * 15 : 60 * 5, // refreshToken => 1시간 accessToekn => 5분
         });
     }
 
@@ -79,14 +79,21 @@ export class AuthService {
     }
 
     /**
-     * 토큰 검증
+     * 토큰 검증 - 만료된 토큰인지 / 잘못된 토큰인지
      * @returns token 안에 있는 payload
      */
     verifyToken(token:string){
         try {
             return this.jwtService.verify(token, {secret: JWT_SECRET})
         } catch (error) {
-            throw new UnauthorizedException('만료되거나 잘못된 토큰 입니다,');
+            if (error instanceof TokenExpiredError) {
+                // 기본적으로 401에러 반환
+                throw new UnauthorizedException('RefreshToken이 만료되었습니다. 다시 로그인하세요');
+            }
+            if (error instanceof JsonWebTokenError) {
+                throw new UnauthorizedException('유효하지 않은 RefreshToken입니다.');
+            }
+            throw new UnauthorizedException('토큰 검증 중 오류가 발생했습니다.');
         }
     }
 
@@ -111,11 +118,23 @@ export class AuthService {
      * @param {UserModel} user
      * @return accessToken, refreshToken
      */
-    loginUser( user: Pick<UserModel,'email'|'id' >) {
-        return {
-            accessToken: this.signToken(user, false),
-            refreshToken: this.signToken(user, true),
-        }
+    loginUser( user: Pick<UserModel,'email'|'id' >, res: Response) {
+
+        const accessToken = this.signToken(user, false);
+        const refreshToken = this.signToken(user, true);
+
+        // ✅ Refresh Token을 HttpOnly 쿠키로 설정
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true, // 보안 강화 (JavaScript 접근 불가능)
+            // secure: false, // 로컬 개발에서는 false
+            secure: process.env.NODE_ENV === 'production', // HTTPS에서만 사용
+            sameSite: 'strict', // CSRF 보호
+            path: '/', // 모든 경로에서 사용 가능
+        });
+
+        // console.log(res.getHeader('set-cookie'));
+
+        return res.json({accessToken: accessToken}) // @Res()를 사용하는 경우, return res.json(...)을 반환하지 않으면 응답이 중단되고 무한 로딩 발생할 수 있음.
     }
 
     /**
@@ -152,19 +171,19 @@ export class AuthService {
      * @param user
      * @returns accdssToken, refreshToken
      */
-    async loginWithEmail( user: Pick<UserModel,'email'|'password' > ) {
+    async loginWithEmail( user: Pick<UserModel,'email'|'password' >, res: Response ) {
 
         // 로그인 검증(email, password)으로 찾은 사용자
         const findedUser = await this.validateLogin(user);
 
         // 사용자의 accessToken과 refreshToken 반환
-        return this.loginUser(findedUser)
+        return await this.loginUser(findedUser, res)
     }
 
     /**
      * 이메일로 회원가입
      */
-    async joinWithEmail(user: Pick<UserModel,'email'|'password'|'nickname' > ){
+    async joinWithEmail(user: Pick<UserModel,'email'|'password'|'nickname' >, res: Response ){
         const hash = await bcrypt.hash(user.password, HASH_ROUNDS); // 비밀번호 암호화
 
         const isVerified = await this.cacheManager.get<string>(user.email);
@@ -182,7 +201,7 @@ export class AuthService {
             password: hash, // 비밀번호는 해시로 저장
         });
 
-        return this.loginUser(newUser);
+        return await this.loginUser(newUser, res);
 
     }
 
