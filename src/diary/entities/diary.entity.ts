@@ -1,3 +1,4 @@
+
 import { BaseModel } from "src/common/entities/base.entity";
 import { UserModel } from "src/users/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -27,6 +28,7 @@ export class DiaryModel extends BaseModel {
     content: string;
 
     @Column()
+    @Transform(({value}) => value && `/${join(DIARY_IMAGE_PATH, value)}`)
     image: string;
 
     @Column({name: "like_count"})

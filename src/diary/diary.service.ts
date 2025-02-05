@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiaryModel } from './entities/diary.entity';
@@ -7,6 +7,9 @@ import { CategoryModel } from './entities/category.entity';
 import { SpaceModel } from './entities/space.entity';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { plainToInstance } from 'class-transformer';
+import { basename, join } from 'path';
+import { DIARY_IMAGE_PATH, PUBLIC_FOLDER_PATH, TEMP_FOLDER_PATH } from 'src/common/const/path.const';
+import { promises } from 'fs';
 
 @Injectable()
 export class DiaryService {
@@ -60,6 +63,7 @@ export class DiaryService {
           'diary.id',
           'diary.title',
           'diary.content',
+          "CONCAT('/public/diary/', diary.image) AS diary_image",
           'diary.createdAt',
           'diary.updatedAt',
           'diary.likeCount',
@@ -80,13 +84,12 @@ export class DiaryService {
     * 다이어리 업로드
     * @param data userId, categoryId, title, content
     */
-    async uploadDiary( userId: number, categoryId: string, diaryDto: CreateDiaryDto, image: string) {
+    async uploadDiary( userId: number, categoryId: string, diaryDto: CreateDiaryDto) {
 
       const diary = this.diaryRepository.create({
         user: {id: userId},
         category: {id: categoryId},
         ...diaryDto,
-        image,
         likeCount: 0,
         commentCount: 0
       })
@@ -98,7 +101,9 @@ export class DiaryService {
 
     /** 
     * 다이어리 수정
-    * @param id title, content
+    * @param id
+    * @param title
+    * @param content
     */
     async editDaiary(id:number, title:string, content:string) {
 
@@ -137,6 +142,30 @@ export class DiaryService {
         // diarys = diarys.filter(diary => diary.id !== id)
 
       return id;
+    }
+
+
+    /**
+     * `diary.image`의 이미지 경로: `public/temp`에서 이미지파일을 찾고 이미지가 존재하면 이미지의 경로를  `/public/diary`로 변경해준다
+     * @param diary
+     * @throws {BadRequestException} 존재하지 않는 파일 입니다.
+     */
+    async createDiaryImage(diary: CreateDiaryDto){
+      //dto의 이미지 이름을 기반으로 파일의 경로 생성
+      const tempFilePath = join(TEMP_FOLDER_PATH, diary.image) // => {project-path}/public/temp/~
+
+      try {
+        await promises.access(tempFilePath); //파일이 존재하는지 확인
+      } catch (error) {
+        throw new BadRequestException('존재하지 않는 파일 입니다.');
+      }
+
+      const fileName = basename(tempFilePath); // 파일의 이름만 가져오기
+      const newPath = join(DIARY_IMAGE_PATH,fileName) // {project-path}/public/diary/~
+
+      await promises.rename(tempFilePath, newPath); // temp -> diary
+
+      return true;
     }
 
 }

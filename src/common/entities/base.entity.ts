@@ -1,5 +1,11 @@
 import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+/**
+ * 상속받아 사용하는 Base엔티티
+ * @property {number} id
+ * @property {date} CreateDateColumn
+ * @property {date} UpdateDateColumn
+ */
 export abstract class BaseModel {
 
     @PrimaryGeneratedColumn()
