@@ -76,7 +76,8 @@ export class AuthController {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      path: '/'
   });
 
   return res.json({ message: '로그아웃 성공' });

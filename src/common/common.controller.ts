@@ -13,6 +13,7 @@ export class CommonController {
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
   ){
+    console.log(file);
     // 받은 이미지를 public/temp 에 저장
     return {fileName: file.filename}
   }

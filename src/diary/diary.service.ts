@@ -37,7 +37,7 @@ export class DiaryService {
         'diary.title',
         "CONCAT('/public/diary/', diary.image) AS diary_image",
         'diary.content',
-        'diary.createdAt',
+        "TO_CHAR(diary.createdAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') AS diary_createdAt"
       ])
       .where('space.id = :id', { id: 'DAKU' }) // category.id가 'DAKU'인 데이터만 필터링
       .orderBy('diary.createdAt', 'ASC')
@@ -64,11 +64,12 @@ export class DiaryService {
           'diary.title',
           'diary.content',
           "CONCAT('/public/diary/', diary.image) AS diary_image",
-          'diary.createdAt',
-          'diary.updatedAt',
+          "TO_CHAR(diary.createdAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') AS diary_createdAt",
+          "TO_CHAR(diary.updatedAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD HH24:MI:SS') AS diary_updatedAt",
           'diary.likeCount',
           'diary.commentCount'
         ])
+        .where('diary.id = :id', { id })
         .orderBy('diary.createdAt', 'ASC')
         .getRawMany();
 

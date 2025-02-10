@@ -7,9 +7,12 @@ import multer from 'multer';
 import { DIARY_IMAGE_PATH, TEMP_FOLDER_PATH } from './const/path.const';
 import {v4 as uuid} from 'uuid'
 import { AuthModule } from 'src/auth/auth.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports:[
+    ScheduleModule.forRoot(), //크론 스케쥴링 활성화
+    //이미지 업로드
     MulterModule.register({
       limits:{
         fileSize: 2300000, //byte 단위: 2.3MB

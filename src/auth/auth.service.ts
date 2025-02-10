@@ -37,7 +37,7 @@ export class AuthService {
 
         return this.jwtService.sign(payload, {
             secret: JWT_SECRET,
-            expiresIn: isRefreshToken ? 60 * 15 : 60 * 5, // refreshToken => 1시간 accessToekn => 5분
+            expiresIn: isRefreshToken ? 60 * 60 * 3 : 60 * 20, // refreshToken => 3시간 accessToekn => 5분
         });
     }
 
@@ -119,20 +119,15 @@ export class AuthService {
      * @return accessToken, refreshToken
      */
     loginUser( user: Pick<UserModel,'email'|'id' >, res: Response) {
-
         const accessToken = this.signToken(user, false);
         const refreshToken = this.signToken(user, true);
 
         // ✅ Refresh Token을 HttpOnly 쿠키로 설정
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true, // 보안 강화 (JavaScript 접근 불가능)
-            // secure: false, // 로컬 개발에서는 false
-            secure: process.env.NODE_ENV === 'production', // HTTPS에서만 사용
-            sameSite: 'strict', // CSRF 보호
+            sameSite: 'strict',
             path: '/', // 모든 경로에서 사용 가능
         });
-
-        // console.log(res.getHeader('set-cookie'));
 
         return res.json({accessToken: accessToken}) // @Res()를 사용하는 경우, return res.json(...)을 반환하지 않으면 응답이 중단되고 무한 로딩 발생할 수 있음.
     }
