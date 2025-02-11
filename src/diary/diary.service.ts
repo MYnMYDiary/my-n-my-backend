@@ -47,7 +47,7 @@ export class DiaryService {
     }
 
     /** 
-     * id에 해당하는 다이어리를 가져옴
+     * 다이어리 id에 해당하는 다이어리를 가져옴
     */
     async getDiaryById(id : number) {
 
@@ -167,5 +167,34 @@ export class DiaryService {
 
       return true;
     }
-
+    
+    async getDiaryByUser(userId: number, categoryId: string) {
+      const query = this.diaryRepository
+        .createQueryBuilder('diary')
+        .leftJoinAndSelect('diary.category', 'category') // Diary → Category 관계 사용
+        .leftJoinAndSelect('category.space', 'space') // Category → Space 관계 사용
+        .leftJoinAndSelect('diary.user', 'user') // Diary → User 관계 사용
+        .select([
+          'space.name AS space_name',  
+          'category.name AS category_name',
+          'user.nickname AS user_nickname',
+          'diary.id AS diary_id',
+          'diary.title AS diary_title',
+          "CONCAT('/public/diary/', diary.image) AS diary_image",
+          'diary.createdAt AS diary_createdAt',
+        ])
+        .where('space.id = :spaceId', { spaceId: 'DAKU' }) // space.id가 'DAKU'인 데이터 필터링
+        .andWhere('user.id = :userId', { userId: Number(userId) }) // userId 필터링
+        .orderBy('diary.createdAt', 'ASC');
+    
+      // ✅ categoryId가 존재할 경우에만 조건 추가
+      if (categoryId) {
+        query.andWhere('category.id = :categoryId', { categoryId: categoryId});
+      }
+    
+      const rawData = await query.getRawMany(); // 특정 필드만 선택했으므로 getRawMany() 사용
+    
+      return plainToInstance(DiaryModel, rawData);
+    }
+    
 }
