@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UsersService } from 'src/users/users.service';
+import { Request } from 'express';
 
 @Injectable()
 export class BearerTokenGuard implements CanActivate {
@@ -44,9 +45,13 @@ export class AccessTokenGuard extends BearerTokenGuard {
 
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly usersService: UsersService
+    ) {}
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
+    // :Promise<boolean>
+    async canActivate(context: ExecutionContext) {
         const request = context.switchToHttp().getRequest();
         const refreshToken = request.cookies?.refreshToken; // 쿠키에서 토큰 가져오기
 
@@ -54,15 +59,17 @@ export class RefreshTokenGuard implements CanActivate {
             throw new UnauthorizedException('RefreshToken이 없습니다!');
         }
 
-        const result = await this.authService.verifyToken(refreshToken);
+        const result = await this.authService.verifyToken(refreshToken); //토큰으로부터 이메일 가져오기
+        const user = await this.usersService.findUserByEmail(result.email); // 가져온 이메일로 사용자 정보 조회
 
         if (result.type !== 'refresh') {
             throw new UnauthorizedException('RefreshToken이 아닙니다!');
         }
 
-        request.user = result; // 유저 정보 저장 (email 포함)
+        request.user = user; // 유저 정보 저장 (email 포함)
         request.tokenType = result.type;
 
-        return true;
+        // return true
+        return request.user;
     }
 }

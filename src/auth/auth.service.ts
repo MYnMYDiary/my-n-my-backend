@@ -37,7 +37,7 @@ export class AuthService {
 
         return this.jwtService.sign(payload, {
             secret: JWT_SECRET,
-            expiresIn: isRefreshToken ? 60 * 15 : 60 * 5, // refreshToken => 1시간 accessToekn => 5분
+            expiresIn: isRefreshToken ? 3600 * 24 * 7 : 60 * 30, // refreshToken => 7일 accessToekn => 30분
         });
     }
 
