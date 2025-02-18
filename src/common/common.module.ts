@@ -1,3 +1,4 @@
+import { ScheduleModule } from '@nestjs/schedule';
 import { BadRequestException, Module } from '@nestjs/common';
 import { CommonService } from './common.service';
 import { CommonController } from './common.controller';
@@ -10,6 +11,7 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports:[
+    ScheduleModule.forRoot(), //크론 스케쥴링 활성화
     MulterModule.register({
       limits:{
         fileSize: 2300000, //byte 단위: 2.3MB

@@ -2,9 +2,6 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiaryModel } from './entities/diary.entity';
-import { UserModel } from 'src/users/entities/user.entity';
-import { CategoryModel } from './entities/category.entity';
-import { SpaceModel } from './entities/space.entity';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { plainToInstance } from 'class-transformer';
 import { basename, join } from 'path';
@@ -171,21 +168,21 @@ export class DiaryService {
     async getDiaryByUser(userId: number, categoryId: string) {
       const query = this.diaryRepository
         .createQueryBuilder('diary')
-        .leftJoinAndSelect('diary.category', 'category') // Diary → Category 관계 사용
-        .leftJoinAndSelect('category.space', 'space') // Category → Space 관계 사용
-        .leftJoinAndSelect('diary.user', 'user') // Diary → User 관계 사용
+        .leftJoinAndSelect('diary.category', 'category')
+        .leftJoinAndSelect('category.space', 'space')
+        .leftJoinAndSelect('diary.user', 'user')
         .select([
-          'space.name AS space_name',  
-          'category.name AS category_name',
-          'user.nickname AS user_nickname',
-          'diary.id AS diary_id',
-          'diary.title AS diary_title',
+          'space.id AS space',  
+          'category.id AS category',
+          'diary.id AS id',
+          'diary.title AS title',
+          'diary.likeCount AS likeCount',
           "CONCAT('/public/diary/', diary.image) AS diary_image",
-          'diary.createdAt AS diary_createdAt',
+          "to_char(diary.createdAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY.MM.DD HH24:MI') AS createdAt",
         ])
         .where('space.id = :spaceId', { spaceId: 'DAKU' }) // space.id가 'DAKU'인 데이터 필터링
         .andWhere('user.id = :userId', { userId: Number(userId) }) // userId 필터링
-        .orderBy('diary.createdAt', 'ASC');
+        .orderBy('diary.createdAt', 'DESC');
     
       // ✅ categoryId가 존재할 경우에만 조건 추가
       if (categoryId) {

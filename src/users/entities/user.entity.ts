@@ -25,6 +25,9 @@ export class UserModel extends BaseModel {
     @Column()
     password: string;
 
+    @Column()
+    profileImage: string;
+
     /**
      * 역할
      * @description enum으로 정의되어 있다. 
