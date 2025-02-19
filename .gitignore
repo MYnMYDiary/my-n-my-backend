@@ -45,6 +45,7 @@ lerna-debug.log*
 # temp directory
 /public/temp
 /public/diary
+/public/profile
 .temp
 .tmp
 

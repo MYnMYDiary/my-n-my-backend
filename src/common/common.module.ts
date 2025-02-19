@@ -1,5 +1,5 @@
 import { ScheduleModule } from '@nestjs/schedule';
-import { BadRequestException, Module } from '@nestjs/common';
+import { BadRequestException, forwardRef, Module } from '@nestjs/common';
 import { CommonService } from './common.service';
 import { CommonController } from './common.controller';
 import { MulterModule } from '@nestjs/platform-express';
@@ -8,6 +8,7 @@ import multer from 'multer';
 import { DIARY_IMAGE_PATH, TEMP_FOLDER_PATH } from './const/path.const';
 import {v4 as uuid} from 'uuid'
 import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports:[
@@ -28,7 +29,8 @@ import { AuthModule } from 'src/auth/auth.module';
         filename: function(rea, file, callback){ callback(null, `${uuid()}${extname(file.originalname)}`) }
       })
     }),
-    AuthModule
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule)
   ],
   controllers: [CommonController],
   providers: [CommonService],
