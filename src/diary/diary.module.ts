@@ -1,5 +1,5 @@
 import { DIARY_IMAGE_PATH } from './../common/const/path.const';
-import { BadRequestException, Module } from '@nestjs/common';
+import { BadRequestException, forwardRef, Module } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { DiaryController } from './diary.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,6 +11,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { extname } from 'path';
 import multer from 'multer';
 import {v4 as uuid} from 'uuid'
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports:[
@@ -19,7 +20,8 @@ import {v4 as uuid} from 'uuid'
       SpaceModel,
       CategoryModel,
     ]),
-    AuthModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
     MulterModule.register({
       limits:{
         fileSize: 2300000, //byte 단위: 2.3MB

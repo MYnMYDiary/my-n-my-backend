@@ -25,8 +25,12 @@ export class UserModel extends BaseModel {
     @Column()
     password: string;
 
-    @Column()
-    profileImage: string;
+    /**
+     * 프로필 이미지
+     * @description 이미지 파일 경로, 공백 허용
+     */
+    @Column({ nullable: true })
+    profileImage?: string;
 
     /**
      * 역할
