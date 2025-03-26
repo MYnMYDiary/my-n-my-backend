@@ -30,6 +30,16 @@ export class DiaryController {
     return this.diaryService.getDiaryById(id);
   }
 
+  @Get('mydiary/:id')
+  @UseGuards(RefreshTokenGuard)
+  getMyDiary(
+    @Req() request:any,
+    @Param('id', ParseIntPipe) diaryId: number
+  ){
+    const userId = request.user.id;
+    return this.diaryService.getMyDiaryById(userId, diaryId);
+  }
+
   @Post('mydiary')
   @UseGuards(RefreshTokenGuard)
   postDiaryByUser(

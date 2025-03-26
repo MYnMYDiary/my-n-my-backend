@@ -138,7 +138,6 @@ export class DiaryService {
     return id;
   }
 
-
   /**
    * `diary.image`의 이미지 경로: `public/temp`에서 이미지파일을 찾고 이미지가 존재하면 이미지의 경로를  `/public/diary`로 변경해준다
    * @param diary
@@ -174,64 +173,68 @@ export class DiaryService {
     return this.pagenation(data, page, '/diary/mydiary');
   }
 
+  async getMyDiaryById(userId: number, diaryId: number){
+    const data = await this.diaryQuery.findMyDiaryById(userId, diaryId);
+    return data;
+  }
 
 
-    /**
-     * 다이어리 페이지네이션
-     * @param query 페이지네이션 쿼리
-     * @param categoryId 카테고리 아이디
-     * @returns 페이지네이션 다이어리
-     */
-    async paginateDiaries(query: PaginateDiaryDto, categoryId: string) {
+  /**
+   * 다이어리 페이지네이션
+   * @param query 페이지네이션 쿼리
+   * @param categoryId 카테고리 아이디
+   * @returns 페이지네이션 다이어리
+   */
+  async paginateDiaries(query: PaginateDiaryDto, categoryId: string) {
 
-      const diary = await this.diaryRepository
-        .createQueryBuilder('diary')
-        .leftJoinAndSelect('diary.category', 'category')
-        .leftJoinAndSelect('category.space', 'space')
-        .leftJoinAndSelect('diary.user', 'user')
-        .select([
-          'space.name',
-          'category.name',
-          'user.nickname',
-          'diary.id',
-          'diary.title',
-          "CONCAT('/public/diary/', diary.image) AS \"diaryImage\"",
-          'diary.content',
-          'diary.likeCount AS \"likeCount\"',
-          'diary.commentCount AS "\commentCount\"',
-          "to_char(diary.createdAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY.MM.DD HH24:MI') AS \"createdAt\"",
-        ])
-        .where('space.id = :id', { id: 'D' })
-        .andWhere('category.id = :categoryId', { categoryId: categoryId })
-        .andWhere('diary.id > :id_gt', { id_gt: Number(query.id_gt) || 0 })
-        .orderBy(`diary.${query.sort}`, query.order)
-        .limit(query.limit)
-        .getRawMany();
+    const diary = await this.diaryRepository
+      .createQueryBuilder('diary')
+      .leftJoinAndSelect('diary.category', 'category')
+      .leftJoinAndSelect('category.space', 'space')
+      .leftJoinAndSelect('diary.user', 'user')
+      .select([
+        'space.name',
+        'category.name',
+        'user.nickname',
+        'diary.id',
+        'diary.title',
+        "CONCAT('/public/diary/', diary.image) AS \"diaryImage\"",
+        'diary.content',
+        'diary.likeCount AS \"likeCount\"',
+        'diary.commentCount AS "\commentCount\"',
+        "to_char(diary.createdAt AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY.MM.DD HH24:MI') AS \"createdAt\"",
+      ])
+      .where('space.id = :id', { id: 'D' })
+      .andWhere('category.id = :categoryId', { categoryId: categoryId })
+      .andWhere('diary.id > :id_gt', { id_gt: Number(query.id_gt) || 0 })
+      .orderBy(`diary.${query.sort}`, query.order)
+      .limit(query.limit)
+      .getRawMany();
 
-        // 마지막 다이어리 조회
-        const lastDiary = diary.length > 0 ? diary[diary.length - 1] : null;
-        const nextUrl = lastDiary && new URL(`${PROTOCOL}${HOST}/diary`);
+      // 마지막 다이어리 조회
+      const lastDiary = diary.length > 0 ? diary[diary.length - 1] : null;
+      const nextUrl = lastDiary && new URL(`${PROTOCOL}${HOST}/diary`);
 
-        if(nextUrl){
-          // query의 키값들을 루핑하면서 키값에 해당하는 value가 존재하면 param에 추가
-          // 단, where__id_more_than 값만 latstDiary의 마지막 값으로 넣어준다
-          for(const key of Object.keys(query)){
-            if(key !== 'id_gt'){
-              nextUrl.searchParams.append(key, query[key as keyof PaginateDiaryDto]);
-            }
+      if(nextUrl){
+        // query의 키값들을 루핑하면서 키값에 해당하는 value가 존재하면 param에 추가
+        // 단, where__id_more_than 값만 latstDiary의 마지막 값으로 넣어준다
+        for(const key of Object.keys(query)){
+          if(key !== 'id_gt'){
+            nextUrl.searchParams.append(key, query[key as keyof PaginateDiaryDto]);
           }
-          nextUrl.searchParams.append('id_gt', lastDiary.diary_id.toString());
         }
+        nextUrl.searchParams.append('id_gt', lastDiary.diary_id.toString());
+      }
 
-      return { 
-        data: plainToInstance(DiaryModel, diary), 
-        cursor: {
-          after: lastDiary?.diary_id,
-        },
-        count: diary.length,
-        next: nextUrl?.toString()
-      };
-    }
+    return { 
+      data: plainToInstance(DiaryModel, diary), 
+      cursor: {
+        after: lastDiary?.diary_id,
+      },
+      count: diary.length,
+      next: nextUrl?.toString()
+    };
+  }
 
 
     /**
