@@ -1,10 +1,12 @@
 // nest g resource로 폴더를 만들 수 있다
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Req, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { AccessTokenGuard, RefreshTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
+import { UserModel } from 'src/users/entities/user.entity';
 
 
 
@@ -13,8 +15,11 @@ export class DiaryController {
   constructor(private readonly diaryService: DiaryService) {}
 
   @Get()
-  getDiarys() {
-    return this.diaryService.getAllDiary();
+  getDiarys(
+    @Query() query: PaginateDiaryDto,
+    @Body('categoryId') categoryId:string
+  ) {
+    return this.diaryService.getAllDiary(query, categoryId);
   }
 
   
@@ -28,26 +33,36 @@ export class DiaryController {
   @UseGuards(RefreshTokenGuard)
   postDiaryByUser(
     @Req() request:any,
+    @Query() query: PaginateDiaryDto,
     @Body('category') categoryId:string
   ){
     const userId = request.user.id;
-    return this.diaryService.getDiaryByUser(userId,categoryId);
+    return this.diaryService.getMyDiary(userId, categoryId, query);
   }
 
 
   @Post()
   @UseGuards(AccessTokenGuard)
-  @UseInterceptors(FileInterceptor('image'))
   async postDiary(
     @User('id') userId: number,
-    @Body('categoryId') categoryId: string,
     @Body() diary: CreateDiaryDto,
-    // @UploadedFile() file: Express.Multer.File,
   ){
     await this.diaryService.createDiaryImage(diary);
-    return this.diaryService.uploadDiary(userId, categoryId, diary);
+    return this.diaryService.uploadDiary(userId, diary);
   }
 
+
+  //테스트
+  @Post('test')
+  @UseGuards(AccessTokenGuard)
+  async testpostDiary(
+    @User() user: UserModel,
+  ){
+    await this.diaryService.generateDiary(user.id);
+    return {
+      message: '테스트 값 생성 완료'
+    }
+  }
 
   @Put(':id')
   putDiary(

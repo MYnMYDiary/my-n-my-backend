@@ -1,4 +1,15 @@
 import { join } from "path";
+
+/**
+ * `http://`
+ */
+export const PROTOCOL = 'http://';
+
+/**
+ * `localhost:8080`
+ */
+export const HOST = 'localhost:8080';
+
 /**
  * /Users/soyeon/dev/workspace/MYnMY/Back
  * @description 프로젝트 루트 폴더

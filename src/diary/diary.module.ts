@@ -12,6 +12,7 @@ import { extname } from 'path';
 import multer from 'multer';
 import {v4 as uuid} from 'uuid'
 import { UsersModule } from 'src/users/users.module';
+import { DiaryQuery } from './queries/diary.query';
 
 @Module({
   imports:[
@@ -40,6 +41,6 @@ import { UsersModule } from 'src/users/users.module';
     }),
   ],
   controllers: [DiaryController],
-  providers: [DiaryService],
+  providers: [DiaryService, DiaryQuery],
 })
 export class DiaryModule {}
