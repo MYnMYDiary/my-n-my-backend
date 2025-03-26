@@ -76,4 +76,14 @@ export class DiaryQuery {
         }
         return query.getRawMany();
     }
+
+    async findMyDiaryById(userId: number, diaryId: number){
+        return this.getBaseDiaryQueryBuilder()
+            .select([...DEFAULT_DIARY_SELECTIONS, 'diary.content AS content', 'category.id AS categoryId'])
+            .where('space.id = :spaceId', { spaceId: 'D' })
+            .andWhere('user.id = :userId', { userId: Number(userId) })
+            .andWhere('diary.id = :diaryId', { diaryId: diaryId })
+            .getRawOne();
+    }
+
 }
