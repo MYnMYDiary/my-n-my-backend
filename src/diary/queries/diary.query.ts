@@ -4,6 +4,7 @@ import { DEFAULT_DIARY_SELECTIONS } from '../const/diary.const';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginateDiaryDto } from '../dto/pagenate-diary.dto';
+import { MyDiaryDto } from '../dto/mydiary.dto';
 
 @Injectable()
 export class DiaryQuery {
@@ -55,19 +56,23 @@ export class DiaryQuery {
      * @param categoryId 카테고리 아이디
      * @returns 유저 아이디에 해당하는 다이어리
      */
-    async findMyDiary(userId: number, categoryId: string, page: PaginateDiaryDto) {
+    async findMyDiary(userId: number, filter: MyDiaryDto, page: PaginateDiaryDto) {
         const query = this.getBaseDiaryQueryBuilder()
             .select([...DEFAULT_DIARY_SELECTIONS, 'category.id AS categoryId'])
             .where('space.id = :spaceId', { spaceId: 'D' })
             .andWhere('user.id = :userId', { userId: Number(userId) })
             .andWhere('diary.id > :diaryId', { diaryId: page.id_gt || 0 })
+            .andWhere('diary.year = :year', { year: filter.year })
+            .andWhere('diary.month = :month', { month: filter.month })
             .orderBy(`diary.${page.sort}`, page.order)
             .limit(page.limit = 20)
 
-        if (categoryId) {
+        if (filter.categoryId) {
             // 디버깅을 위한 로그 추가
-            console.log('Filtering by categoryId:', categoryId);
-            query.andWhere('category.id = :categoryId', { categoryId: categoryId });
+            console.log('카테고리별 조회:', filter.categoryId);
+            console.log('연도별 조회:', filter.year);
+            console.log('월별 조회:', filter.month);
+            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
         }
         return query.getRawMany();
     }
