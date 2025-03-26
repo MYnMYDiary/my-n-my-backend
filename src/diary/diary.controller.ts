@@ -7,6 +7,7 @@ import { CreateDiaryDto } from './dto/create-diary.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { UserModel } from 'src/users/entities/user.entity';
+import { MyDiaryDto } from './dto/mydiary.dto';
 
 
 
@@ -34,10 +35,10 @@ export class DiaryController {
   postDiaryByUser(
     @Req() request:any,
     @Query() query: PaginateDiaryDto,
-    @Body('category') categoryId:string
+    @Body() filter: MyDiaryDto
   ){
     const userId = request.user.id;
-    return this.diaryService.getMyDiary(userId, categoryId, query);
+    return this.diaryService.getMyDiary(userId, filter, query);
   }
 
 

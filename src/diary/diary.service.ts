@@ -9,6 +9,7 @@ import { DIARY_IMAGE_PATH, HOST, PROTOCOL, PUBLIC_FOLDER_PATH, TEMP_FOLDER_PATH 
 import { promises } from 'fs';
 import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { DiaryQuery } from './queries/diary.query';
+import { MyDiaryDto } from './dto/mydiary.dto';
 
 @Injectable()
 export class DiaryService {
@@ -19,6 +20,13 @@ export class DiaryService {
     private readonly diaryQuery: DiaryQuery
   ) {}
   
+  /**
+   * 페이지네이션 처리
+   * @param data 데이터
+   * @param page 페이지네이션 쿼리
+   * @param url 페이지네이션 쿼리 경로
+   * @returns 페이지네이션 데이터
+   */
   pagenation(data: any, page: PaginateDiaryDto, url: string){
     
     const lastdata = data.length > 0 ? data[data.length - 1] : null; // 마지막 데이터
@@ -161,8 +169,8 @@ export class DiaryService {
    * @param categoryId 카테고리 아이디
    * @returns 유저 아이디에 해당하는 다이어리
    */
-  async getMyDiary(userId: number, categoryId: string, page: PaginateDiaryDto) {
-    const data = await this.diaryQuery.findMyDiary(userId, categoryId, page);
+  async getMyDiary(userId: number, filter: MyDiaryDto, page: PaginateDiaryDto) {
+    const data = await this.diaryQuery.findMyDiary(userId, filter, page);
     return this.pagenation(data, page, '/diary/mydiary');
   }
 
