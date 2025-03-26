@@ -4,9 +4,9 @@ import { UserModel } from "src/users/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { CategoryModel } from "./category.entity";
 import { IsString } from "class-validator";
-import { Transform } from "class-transformer";
-import { join } from "path";
-import { DIARY_IMAGE_PATH } from "src/common/const/path.const";
+// import { Transform } from "class-transformer";
+// import { join } from "path";
+// import { DIARY_IMAGE_PATH } from "src/common/const/path.const";
 
 @Entity({ name: "Diary"})
 export class DiaryModel extends BaseModel {
@@ -20,6 +20,14 @@ export class DiaryModel extends BaseModel {
     category: CategoryModel;
 
     @Column()
+    @IsString({message:'year은 string 타입을 넣어줘야 합니다.'})
+    year: string;
+
+    @Column()
+    @IsString({message:'month는 string 타입을 넣어줘야 합니다.'})
+    month: string;
+
+    @Column()
     @IsString({message:'title은 string 타입을 넣어줘야 합니다.'})
     title: string;
 
@@ -28,7 +36,7 @@ export class DiaryModel extends BaseModel {
     content: string;
 
     @Column()
-    @Transform(({value}) => value && `/${join(DIARY_IMAGE_PATH, value)}`)
+    //@Transform(({value}) => value && `${join(DIARY_IMAGE_PATH, value)}`)
     image: string;
 
     @Column({name: "like_count"})
