@@ -1,9 +1,10 @@
 
 import { BaseModel } from "src/common/entities/base.entity";
 import { UserModel } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { CategoryModel } from "./category.entity";
 import { IsString } from "class-validator";
+import { TagModel } from "./tag.entity";
 // import { Transform } from "class-transformer";
 // import { join } from "path";
 // import { DIARY_IMAGE_PATH } from "src/common/const/path.const";
@@ -36,6 +37,7 @@ export class DiaryModel extends BaseModel {
     content: string;
 
     @Column()
+    @IsString({message:'image는 string 타입을 넣어줘야 합니다.'})
     //@Transform(({value}) => value && `${join(DIARY_IMAGE_PATH, value)}`)
     image: string;
 
@@ -44,5 +46,19 @@ export class DiaryModel extends BaseModel {
 
     @Column({name: "comment_count"})
     commentCount: number;
+
+    @ManyToMany(() => TagModel, (tag) => tag.diaries)
+    @JoinTable({
+        name: "diary_tags", // 중간 테이블 이름
+        joinColumn: {
+            name: "diary_id",
+            referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+            name: "tag_id",
+            referencedColumnName: "id"
+        }
+    })
+    tags: TagModel[];
 
   }

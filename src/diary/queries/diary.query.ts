@@ -18,7 +18,8 @@ export class DiaryQuery {
       .createQueryBuilder('diary')
       .leftJoinAndSelect('diary.category', 'category')
       .leftJoinAndSelect('category.space', 'space')
-      .leftJoinAndSelect('diary.user', 'user');
+      .leftJoinAndSelect('diary.user', 'user')
+      .leftJoinAndSelect('diary.tags', 'tags');
   }
 
   /**
@@ -39,15 +40,32 @@ export class DiaryQuery {
    * 다이어리 아이디에 해당하는 다이어리 조회
    */
   async findDiaryById(id: number) {
-    return this.getBaseDiaryQueryBuilder()
+    const diary = await this.getBaseDiaryQueryBuilder()
       .select([
         ...DEFAULT_DIARY_SELECTIONS,
         'diary.content AS content',
       ])
       .where('diary.id = :id', { id })
-      .andWhere('space.id = :spaceId', { spaceId: 'D' }) // space.id가 'DAKU'인 데이터 필터링
+      .andWhere('space.id = :spaceId', { spaceId: 'D' })
       .orderBy('diary.createdAt', 'ASC')
+      .getRawOne();
+
+    if (!diary) {
+      return null;
+    }
+
+    // 태그 조회
+    const tags = await this.diaryRepository
+      .createQueryBuilder('diary')
+      .select('tags.name', 'name')
+      .leftJoin('diary.tags', 'tags')
+      .where('diary.id = :id', { id })
       .getRawMany();
+
+    return {
+      ...diary,
+      tag_names: tags.map(tag => tag.name)
+    };
   }
 
     /**
@@ -121,10 +139,19 @@ export class DiaryQuery {
           .limit(1)
           .getRawOne();
 
+          // 태그 조회
+          const tags = await this.diaryRepository
+          .createQueryBuilder('diary')
+          .select('tags.name', 'name')
+          .leftJoin('diary.tags', 'tags')
+          .where('diary.id = :id', { id: diaryId })
+          .getRawMany();
+
           return {
             data: diary,
             prev: prevDiary?.diary_id ?? null,
-            next: nextDiary?.diary_id ?? null
+            next: nextDiary?.diary_id ?? null,
+            tags: tags.map(tag => tag.name)
           };
       }
     }
