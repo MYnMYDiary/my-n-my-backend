@@ -12,7 +12,10 @@
  */
 export const DEFAULT_DIARY_SELECTIONS = [
     'space.name AS space',
-    'category.name AS category', 
+    'category.name AS category',
+    'category.id AS categoryId', 
+    'diary.year AS year',
+    'diary.month AS month',
     'user.nickname AS user',
     'diary.id AS id',
     'diary.title AS title',

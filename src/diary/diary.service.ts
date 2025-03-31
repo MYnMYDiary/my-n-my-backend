@@ -10,6 +10,7 @@ import { promises } from 'fs';
 import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { DiaryQuery } from './queries/diary.query';
 import { MyDiaryDto } from './dto/mydiary.dto';
+import { SpaceModel } from './entities/space.entity';
 
 @Injectable()
 export class DiaryService {
@@ -17,6 +18,8 @@ export class DiaryService {
   constructor(
     @InjectRepository(DiaryModel)
     private readonly diaryRepository: Repository<DiaryModel>,
+    @InjectRepository(SpaceModel)
+    private readonly spaceRepository: Repository<SpaceModel>,
     private readonly diaryQuery: DiaryQuery
   ) {}
   
@@ -51,6 +54,13 @@ export class DiaryService {
       count: data.length,
       next: nextUrl?.toString()
     };
+  }
+
+  async getSpaces(){
+    const data = await this.spaceRepository.find({
+      select: ['id', 'name']
+    })
+    return data;
   }
 
   /** 
@@ -173,8 +183,8 @@ export class DiaryService {
     return this.pagenation(data, page, '/diary/mydiary');
   }
 
-  async getMyDiaryById(userId: number, diaryId: number){
-    const data = await this.diaryQuery.findMyDiaryById(userId, diaryId);
+  async getMyDiaryById(userId: number, diaryId: number, filter: MyDiaryDto){
+    const data = await this.diaryQuery.findMyDiaryById(userId, diaryId, filter);
     return data;
   }
 
