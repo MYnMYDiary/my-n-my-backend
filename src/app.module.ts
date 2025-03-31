@@ -13,6 +13,8 @@ import { SpaceModel } from './diary/entities/space.entity';
 import { CategoryModel } from './diary/entities/category.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
+import { TagModel } from './diary/entities/tag.entity';
+
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
         UserModel,
         SpaceModel,
         CategoryModel,
+        TagModel,
       ],
       synchronize: true, //실제로 운영할 때는 false로 해야된다 안그러면 큰일난다!
     }),

@@ -13,6 +13,10 @@ import multer from 'multer';
 import {v4 as uuid} from 'uuid'
 import { UsersModule } from 'src/users/users.module';
 import { DiaryQuery } from './queries/diary.query';
+import { TagModel } from './entities/tag.entity';
+import { TagService } from './tag.service';
+
+
 
 @Module({
   imports:[
@@ -20,6 +24,7 @@ import { DiaryQuery } from './queries/diary.query';
       DiaryModel,
       SpaceModel,
       CategoryModel,
+      TagModel,
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
@@ -41,6 +46,6 @@ import { DiaryQuery } from './queries/diary.query';
     }),
   ],
   controllers: [DiaryController],
-  providers: [DiaryService, DiaryQuery],
+  providers: [DiaryService, DiaryQuery, TagService],
 })
 export class DiaryModule {}

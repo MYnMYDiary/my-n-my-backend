@@ -11,7 +11,8 @@ import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { DiaryQuery } from './queries/diary.query';
 import { MyDiaryDto } from './dto/mydiary.dto';
 import { SpaceModel } from './entities/space.entity';
-
+import { TagModel } from './entities/tag.entity';
+import { TagService } from './tag.service';
 @Injectable()
 export class DiaryService {
 
@@ -20,6 +21,9 @@ export class DiaryService {
     private readonly diaryRepository: Repository<DiaryModel>,
     @InjectRepository(SpaceModel)
     private readonly spaceRepository: Repository<SpaceModel>,
+    @InjectRepository(TagModel)
+    private readonly tagRepository: Repository<TagModel>,
+    private readonly tagService: TagService,
     private readonly diaryQuery: DiaryQuery
   ) {}
   
@@ -88,19 +92,21 @@ export class DiaryService {
   * 다이어리 업로드
   * @param data userId, categoryId, title, content
   */
-  async uploadDiary( userId: number, diaryDto: CreateDiaryDto) {
+  async uploadDiary(userId: number, diaryDto: CreateDiaryDto) {
+
+    const { tags: _, ...restDto } = diaryDto; // 태그 제외한 나머지 데이터
+    const newTag = await this.tagService.createOrUpdateTags(diaryDto.tags); // 태그 생성 또는 업데이트
 
     const diary = this.diaryRepository.create({
-      user: {id: userId},
-      category: {id: diaryDto.categoryId},
-      ...diaryDto,
-      likeCount: 0,
-      commentCount: 0
-    })
+        user: {id: userId},
+        category: {id: diaryDto.categoryId},
+        tags: newTag,
+        ...restDto,
+        likeCount: 0,
+        commentCount: 0
+    });
 
-    const newDiary = await this.diaryRepository.save(diary);
-        
-        return newDiary;
+    return await this.diaryRepository.save(diary);
   }
 
   /** 
