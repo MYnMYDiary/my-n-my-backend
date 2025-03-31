@@ -15,6 +15,11 @@ import { MyDiaryDto } from './dto/mydiary.dto';
 export class DiaryController {
   constructor(private readonly diaryService: DiaryService) {}
 
+  @Get('spaces')
+  getSpaces(){
+    return this.diaryService.getSpaces();
+  }
+
   @Get()
   getDiarys(
     @Query() query: PaginateDiaryDto,
@@ -30,14 +35,15 @@ export class DiaryController {
     return this.diaryService.getDiaryById(id);
   }
 
-  @Get('mydiary/:id')
+  @Post('mydiary/:id')
   @UseGuards(RefreshTokenGuard)
   getMyDiary(
     @Req() request:any,
-    @Param('id', ParseIntPipe) diaryId: number
+    @Param('id', ParseIntPipe) diaryId: number,
+    @Body() filter: MyDiaryDto
   ){
     const userId = request.user.id;
-    return this.diaryService.getMyDiaryById(userId, diaryId);
+    return this.diaryService.getMyDiaryById(userId, diaryId, filter);
   }
 
   @Post('mydiary')
