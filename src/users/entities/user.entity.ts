@@ -2,6 +2,7 @@ import { DiaryModel } from "src/diary/entities/diary.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserRole } from "../const/user.const";
 import { BaseModel } from "src/common/entities/base.entity";
+import { DiaryLikeModel } from "src/diary/entities/like.entity";
 
 @Entity({ name: "User" })
 export class UserModel extends BaseModel {
@@ -45,8 +46,13 @@ export class UserModel extends BaseModel {
 
 
     // Relations
-
     @OneToMany( () => DiaryModel, (diary) => diary.user)
     diarys : DiaryModel[];
+
+    /**
+     * 좋아요 목록
+     */
+    @OneToMany(() => DiaryLikeModel, (diaryLike) => diaryLike.user)
+    diaryLikes: DiaryLikeModel[];
 
 }

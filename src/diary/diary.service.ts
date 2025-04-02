@@ -70,8 +70,8 @@ export class DiaryService {
   /** 
    * 모든 다이어리를 다 가져옴
   */
-  async getAllDiary(page: PaginateDiaryDto, categoryId: string) {
-    const data = await this.diaryQuery.findAllDiaries(page, categoryId);
+  async getAllDiary(page: PaginateDiaryDto, categoryId: string, userId?: number) {
+    const data = await this.diaryQuery.findAllDiaries(page, categoryId, userId);
     return this.pagenation(data, page, '/diary');
   }
 
@@ -179,7 +179,7 @@ export class DiaryService {
 
     
   /**
-   * 유저 아이디에 해당하는 다이어리를 가져옴
+   * 마이페이지/다이어리/목록조회
    * @param userId 유저 아이디
    * @param categoryId 카테고리 아이디
    * @returns 유저 아이디에 해당하는 다이어리
@@ -189,6 +189,13 @@ export class DiaryService {
     return this.pagenation(data, page, '/diary/mydiary');
   }
 
+  /**
+   * 마이페이지/다이어리/상세보기
+   * @param userId 유저 아이디
+   * @param diaryId 다이어리 아이디
+   * @param filter 필터
+   * @returns 유저 아이디에 해당하는 다이어리
+   */
   async getMyDiaryById(userId: number, diaryId: number, filter: MyDiaryDto){
     const data = await this.diaryQuery.findMyDiaryById(userId, diaryId, filter);
     return data;
@@ -269,6 +276,17 @@ export class DiaryService {
         })
         await this.diaryRepository.save(diary);
       }
+    }
+
+
+    /**
+     * 좋아요 처리
+     * @param userId 유저 아이디
+     * @param diaryId 다이어리 아이디
+     * @returns 좋아요 처리 결과
+     */
+    async likeDiary(userId: number, diaryId: number){
+      return await this.diaryQuery.diaryLike(userId, diaryId);
     }
     
 }
