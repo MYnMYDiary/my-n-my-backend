@@ -15,8 +15,7 @@ import { UsersModule } from 'src/users/users.module';
 import { DiaryQuery } from './queries/diary.query';
 import { TagModel } from './entities/tag.entity';
 import { TagService } from './tag.service';
-
-
+import { DiaryLikeModel } from './entities/like.entity';
 
 @Module({
   imports:[
@@ -25,6 +24,7 @@ import { TagService } from './tag.service';
       SpaceModel,
       CategoryModel,
       TagModel,
+      DiaryLikeModel,
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),

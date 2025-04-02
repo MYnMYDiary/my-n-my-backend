@@ -14,6 +14,7 @@ import { CategoryModel } from './diary/entities/category.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 import { TagModel } from './diary/entities/tag.entity';
+import { DiaryLikeModel } from './diary/entities/like.entity';
 
 
 @Module({
@@ -37,11 +38,12 @@ import { TagModel } from './diary/entities/tag.entity';
       database: process.env.POSTGRES_DB,
       password: String(process.env.POSTGRES_PASSWORD),
       entities: [
-        DiaryModel,
         UserModel,
+        DiaryModel,
         SpaceModel,
         CategoryModel,
         TagModel,
+        DiaryLikeModel,
       ],
       synchronize: true, //실제로 운영할 때는 false로 해야된다 안그러면 큰일난다!
     }),

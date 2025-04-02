@@ -1,11 +1,12 @@
 
 import { BaseModel } from "src/common/entities/base.entity";
 import { UserModel } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany} from "typeorm";
 import { CategoryModel } from "./category.entity";
 import { IsString } from "class-validator";
-import { TagModel } from "./tag.entity";
-// import { Transform } from "class-transformer";
+import { TagModel } from "./tag.entity";  
+import { DiaryLikeModel } from "./like.entity";
+// import { Transform } from "class-transformer";   
 // import { join } from "path";
 // import { DIARY_IMAGE_PATH } from "src/common/const/path.const";
 
@@ -44,8 +45,12 @@ export class DiaryModel extends BaseModel {
     @Column({name: "like_count"})
     likeCount: number;
 
+
     @Column({name: "comment_count"})
     commentCount: number;
+
+    @OneToMany(() => DiaryLikeModel, diaryLike => diaryLike.diary)
+    likes: DiaryLikeModel[];
 
     @ManyToMany(() => TagModel, (tag) => tag.diaries)
     @JoinTable({

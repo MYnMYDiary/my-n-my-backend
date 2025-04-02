@@ -8,12 +8,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { UserModel } from 'src/users/entities/user.entity';
 import { MyDiaryDto } from './dto/mydiary.dto';
-
-
+import { TagService } from './tag.service';
+import { OptionalBearerTokenGuard } from 'src/auth/guard/optional-token.guard';
 
 @Controller('diary')
 export class DiaryController {
-  constructor(private readonly diaryService: DiaryService) {}
+  constructor(
+    private readonly diaryService: DiaryService,
+    private readonly tagService: TagService
+  ) {}
 
   @Get('spaces')
   getSpaces(){
@@ -21,19 +24,22 @@ export class DiaryController {
   }
 
   @Get()
+  @UseGuards(OptionalBearerTokenGuard)
   getDiarys(
+    @Req() request:any,
     @Query() query: PaginateDiaryDto,
     @Body('categoryId') categoryId:string
   ) {
-    return this.diaryService.getAllDiary(query, categoryId);
+    const userId = request.user?.id;
+    return this.diaryService.getAllDiary(query, categoryId, userId);
   }
 
-  
   @Get(':id')
   getDiary(@Param('id', ParseIntPipe ) id: number){
 
     return this.diaryService.getDiaryById(id);
   }
+
 
   @Post('mydiary/:id')
   @UseGuards(RefreshTokenGuard)
@@ -59,7 +65,7 @@ export class DiaryController {
 
 
   @Post()
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(RefreshTokenGuard)
   async postDiary(
     @User('id') userId: number,
     @Body() diary: CreateDiaryDto,
@@ -68,6 +74,22 @@ export class DiaryController {
     return this.diaryService.uploadDiary(userId, diary);
   }
 
+  @Post('like/:id')
+  @UseGuards(RefreshTokenGuard)
+  async likeDiary(
+    @Req() request:any,
+    @Param('id', ParseIntPipe) diaryId: number
+  ){
+    const userId = request.user.id;
+    return this.diaryService.likeDiary(userId, diaryId);
+  }
+
+  @Post('tag')
+  async postTags(
+    @Body('tag') tag: string
+  ){
+    return this.tagService.findTag(tag);
+  }
 
   //테스트
   @Post('test')
