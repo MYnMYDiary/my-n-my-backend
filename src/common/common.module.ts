@@ -15,7 +15,7 @@ import { UsersModule } from 'src/users/users.module';
     ScheduleModule.forRoot(), //크론 스케쥴링 활성화
     MulterModule.register({
       limits:{
-        fileSize: 2300000, //byte 단위: 2.3MB
+        fileSize: 3500000, //byte 단위: 3.5MB
       },
       fileFilter: (req, file, callback) => {
         const ext = extname(file.originalname); // .jpg 이런식으로 확장자 명만 가져옴

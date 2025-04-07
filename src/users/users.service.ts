@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { join } from 'path';
 import { PROFILE_IMAGE_PATH } from 'src/common/const/path.const';
 import * as fs from 'fs';
+import { DEFAULT_USER_SELECTIONS } from './const/userQuery.const';
+
 
 @Injectable()
 export class UsersService {
@@ -38,6 +40,20 @@ export class UsersService {
         const newUser = this.userRepository.save(userObj);
 
         return newUser;
+    }
+
+        /**
+     * 내 정보 조회
+     * @param userId 유저 아이디
+     * @returns 유저 정보
+     */
+    async getMyInfo(userId: number) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select([...DEFAULT_USER_SELECTIONS])
+            .where('user.id = :userId', { userId })
+            .getRawOne();
+
+        return user;
     }
 
     /**
@@ -79,25 +95,5 @@ export class UsersService {
     }
 
 
-    /**
-     * 유저 정보 조회
-     * @param userId 유저 아이디
-     * @returns 유저 정보
-     */
-    async getUserInfo(userId: number) {
-        const user = await this.userRepository.createQueryBuilder('user')
-            .select([
-                'user.id AS id',
-                'user.nickname AS nickname',
-                'user.email AS email',
-                'user.role AS role',
-                'user.createdAt AS createdAt',
-                'user.updatedAt AS updatedAt',
-                "CONCAT('/public/profile/', user.profileImage) AS profileimage",
-            ])
-            .where('user.id = :userId', { userId })
-            .getRawOne();
 
-        return user;
-    }
 }

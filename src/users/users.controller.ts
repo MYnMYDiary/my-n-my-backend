@@ -3,22 +3,23 @@ import { UsersService } from './users.service';
 import { UserModel } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RefreshTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { OptionalBearerTokenGuard } from 'src/auth/guard/optional-token.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * 유저 정보 조회
+   * 유저 정보 조회 - 내 정보 조회
    * @param userId 유저 아이디
    * @returns 유저 정보
    */
-  @Get()
+  @Get('me')
   @UseGuards(RefreshTokenGuard)
-  getUserInfo(@Req() request: any) {
+  getMyInfo(@Req() request: any) {
     // 유저 아이디
     const userId = request.user.id;
-    return this.usersService.getUserInfo(userId);
+    return this.usersService.getMyInfo(userId);
   }
 
 
