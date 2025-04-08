@@ -1,52 +1,47 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthService } from '../auth.service';
 import { UsersService } from 'src/users/users.service';
-import { Request } from 'express';
+import { JwtAuthService } from '../jwt/jwt.service';
 
 @Injectable()
-export class BearerTokenGuard implements CanActivate {
+export class AccessTokenGuard implements CanActivate {
     constructor(
-        private readonly authService: AuthService,
+        private readonly jwtAuthService: JwtAuthService,
         private readonly usersService: UsersService
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const rawToken = request.headers['authorization'];
+        const req = context.switchToHttp().getRequest();
+        const rawToken = req.headers['authorization'];
 
         if (!rawToken) {
-            throw new UnauthorizedException('토큰이 없습니다!');
+            throw new UnauthorizedException('토큰이 없습니다.');
         }
 
-        const token = this.authService.extractTokenFromHeader(rawToken, true);
-        const result = await this.authService.verifyToken(token);
-        const user = await this.usersService.findUserByEmail(result.email);
+        const token = this.jwtAuthService.extractTokenFromHeader(rawToken, true);
 
-        request.user = user;
-        request.token = token;
-        request.tokenType = result.type;
-
-        return true;
+        try {
+            const payload = this.jwtAuthService.verifyToken(token);
+            const user = await this.usersService.findUserByEmail(payload.email);
+            req.user = user;
+            return true;
+        } catch (e) {
+            throw new UnauthorizedException('유효하지 않은 토큰입니다.');
+        }
     }
-}
 
-@Injectable()
-export class AccessTokenGuard extends BearerTokenGuard {
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        await super.canActivate(context);
-        const request = context.switchToHttp().getRequest();
-
-        if (request.tokenType !== 'access') {
-            throw new UnauthorizedException('AccessToken이 아닙니다!');
+    private extractTokenFromHeader(header: string) {
+        const splitToken = header.split(' ');
+        if (splitToken.length !== 2 || splitToken[0] !== 'Bearer') {
+            throw new UnauthorizedException('잘못된 토큰입니다.');
         }
-        return true;
+        return splitToken[1];
     }
 }
 
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {
     constructor(
-        private readonly authService: AuthService,
+        private readonly jwtAuthService: JwtAuthService,
         private readonly usersService: UsersService
     ) {}
 
@@ -59,7 +54,7 @@ export class RefreshTokenGuard implements CanActivate {
             throw new UnauthorizedException('RefreshToken이 없습니다!');
         }
 
-        const result = await this.authService.verifyToken(refreshToken); //토큰으로부터 이메일 가져오기
+        const result = await this.jwtAuthService.verifyToken(refreshToken); //토큰으로부터 이메일 가져오기
         const user = await this.usersService.findUserByEmail(result.email); // 가져온 이메일로 사용자 정보 조회
 
         if (result.type !== 'refresh') {

@@ -1,5 +1,6 @@
 import { ScheduleModule } from '@nestjs/schedule';
-import { BadRequestException, forwardRef, Module } from '@nestjs/common';
+
+import { BadRequestException, forwardRef, Module, Global } from '@nestjs/common';
 import { CommonService } from './common.service';
 import { CommonController } from './common.controller';
 import { MulterModule } from '@nestjs/platform-express';
@@ -9,7 +10,9 @@ import { DIARY_IMAGE_PATH, TEMP_FOLDER_PATH } from './const/path.const';
 import {v4 as uuid} from 'uuid'
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
+import { JwtAuthModule } from './jwt/jwt.module';
 
+@Global()
 @Module({
   imports:[
     ScheduleModule.forRoot(), //크론 스케쥴링 활성화
@@ -30,9 +33,11 @@ import { UsersModule } from 'src/users/users.module';
       })
     }),
     forwardRef(() => AuthModule),
-    forwardRef(() => UsersModule)
+    forwardRef(() => UsersModule),
+    JwtAuthModule
   ],
   controllers: [CommonController],
   providers: [CommonService],
+  exports: [JwtAuthModule]
 })
 export class CommonModule {}

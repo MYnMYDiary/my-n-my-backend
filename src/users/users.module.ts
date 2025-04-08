@@ -28,8 +28,7 @@ import { AuthModule } from 'src/auth/auth.module';
         destination: function(req, file, callback){ callback(null, PROFILE_IMAGE_PATH); },
         filename: function(rea, file, callback){ callback(null, `${uuid()}${extname(file.originalname)}`) }
       })
-    }),
-    forwardRef(() => AuthModule)
+    })
   ],
   controllers: [UsersController],
   providers: [UsersService],
