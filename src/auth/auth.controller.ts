@@ -1,15 +1,17 @@
-import { Body, Controller, Get, Header, Headers, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserModel } from 'src/users/entities/user.entity';
 import { MailService } from './mail.service';
-import { RefreshTokenGuard } from './guard/bearer-token.guard';
 import { Request, Response } from 'express';
+import { RefreshTokenGuard } from 'src/common/guards/bearer-token.guard';
+import { JwtAuthService } from 'src/common/jwt/jwt.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly jwtAuthService: JwtAuthService
   ) {}
 
   @Post('token/access')
@@ -19,7 +21,7 @@ export class AuthController {
     @Req() request: Request,
   ){
     const refreshToken = request.cookies?.refreshToken; // 쿠키에서 RefreshToken 가져오기
-    const newToken = this.authService.rotateToken(refreshToken, false) // accessToken 발급
+    const newToken = this.jwtAuthService.rotateToken(refreshToken, false) // accessToken 발급
 
     return{ accessToken: newToken }
   }
@@ -33,7 +35,7 @@ export class AuthController {
     @Req() request: Request,
   ){
     const refreshToken = request.cookies?.refreshToken; // 쿠키에서 RefreshToken 가져오기
-    const newToken = this.authService.rotateToken(refreshToken, true) // refreshToken 발급
+    const newToken = this.jwtAuthService.rotateToken(refreshToken, true) // refreshToken 발급
 
     return{ refreshToken: newToken }
   }

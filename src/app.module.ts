@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,10 +16,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 import { TagModel } from './diary/entities/tag.entity';
 import { DiaryLikeModel } from './diary/entities/like.entity';
-
+import { MarketModule } from './market/market.module';
+import { GuardsModule } from './common/guards/guards.module';
+import { MarketModel } from './market/entities/market.entity';
+import { MarketSubscribeModel } from './market/entities/market-subscribe.entity';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     // 이미지
     ServeStaticModule.forRoot({
       rootPath: PUBLIC_FOLDER_PATH,
@@ -44,13 +51,16 @@ import { DiaryLikeModel } from './diary/entities/like.entity';
         CategoryModel,
         TagModel,
         DiaryLikeModel,
+        MarketModel,
+        MarketSubscribeModel
       ],
       synchronize: true, //실제로 운영할 때는 false로 해야된다 안그러면 큰일난다!
     }),
-    DiaryModule,
-    UsersModule,
     AuthModule,
-    CommonModule, 
+    UsersModule,
+    MarketModule,
+    DiaryModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

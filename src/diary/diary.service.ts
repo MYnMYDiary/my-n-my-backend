@@ -78,8 +78,8 @@ export class DiaryService {
   /** 
    * 다이어리 id에 해당하는 다이어리를 가져옴(상세보기)
   */
-  async getDiaryById(id : number) {
-    const data = await this.diaryQuery.findDiaryById(id);
+  async getDiaryById(id : number, userId?: number) {
+    const data = await this.diaryQuery.findDiaryById(id, userId);
 
     if(!data){
       throw new NotFoundException();

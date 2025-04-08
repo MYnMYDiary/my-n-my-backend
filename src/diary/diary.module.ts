@@ -26,8 +26,8 @@ import { DiaryLikeModel } from './entities/like.entity';
       TagModel,
       DiaryLikeModel,
     ]),
-    forwardRef(() => AuthModule),
-    forwardRef(() => UsersModule),
+    AuthModule,
+    UsersModule,
     MulterModule.register({
       limits:{
         fileSize: 2300000, //byte 단위: 2.3MB

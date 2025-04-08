@@ -1,7 +1,6 @@
 // nest g resource로 폴더를 만들 수 있다
 import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DiaryService } from './diary.service';
-import { AccessTokenGuard, RefreshTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,7 +8,8 @@ import { PaginateDiaryDto } from './dto/pagenate-diary.dto';
 import { UserModel } from 'src/users/entities/user.entity';
 import { MyDiaryDto } from './dto/mydiary.dto';
 import { TagService } from './tag.service';
-import { OptionalBearerTokenGuard } from 'src/auth/guard/optional-token.guard';
+import { OptionalBearerTokenGuard } from 'src/common/guards/optional-token.guard';
+import { AccessTokenGuard, RefreshTokenGuard } from 'src/common/guards/bearer-token.guard';
 
 @Controller('diary')
 export class DiaryController {
@@ -35,9 +35,13 @@ export class DiaryController {
   }
 
   @Get(':id')
-  getDiary(@Param('id', ParseIntPipe ) id: number){
-
-    return this.diaryService.getDiaryById(id);
+  @UseGuards(OptionalBearerTokenGuard)
+  getDiary(
+    @Param('id', ParseIntPipe ) id: number,
+    @Req() request:any
+  ){
+    const userId = request.user?.id;
+    return this.diaryService.getDiaryById(id, userId);
   }
 
 

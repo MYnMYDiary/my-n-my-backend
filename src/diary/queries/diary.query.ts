@@ -11,7 +11,9 @@ import { DiaryLikeModel } from '../entities/like.entity';
 export class DiaryQuery {
   constructor(
     @InjectRepository(DiaryModel)
-    private readonly diaryRepository: Repository<DiaryModel>
+    private readonly diaryRepository: Repository<DiaryModel>,
+    @InjectRepository(DiaryLikeModel)
+    private readonly diaryLikeRepository: Repository<DiaryLikeModel>
   ) {}
 
   /**
@@ -24,7 +26,8 @@ export class DiaryQuery {
       .createQueryBuilder('diary')
       .leftJoinAndSelect('diary.category', 'category')
       .leftJoinAndSelect('category.space', 'space')
-      .leftJoinAndSelect('diary.user', 'user');
+      .leftJoinAndSelect('diary.user', 'user')
+      .leftJoinAndSelect('diary.likes', 'likes');
 
     // 태그 포함 여부
     if (includeTags) {
@@ -39,37 +42,44 @@ export class DiaryQuery {
    * 모든 다이어리를 조회
    */
   async findAllDiaries(page: PaginateDiaryDto, categoryId: string, userId?: number) {
+    // 1. 기본 다이어리 목록 조회
     const diaries = await this.getBaseDiaryQueryBuilder()
-      .select([
-        ...DEFAULT_DIARY_SELECTIONS,
-        'CASE WHEN diaryLike.id IS NOT NULL THEN true ELSE false END as "isLiked"'
-      ])
-      .where('space.id = :spaceId', { spaceId: 'D' })
-      .andWhere('category.id = :categoryId', { categoryId: categoryId })
-      .andWhere('diary.id > :diaryId', { diaryId: page.id_gt || 0 })
-      .orderBy(`diary.${page.sort}`, page.order)
-      .limit(page.limit)
+        .select([...DEFAULT_DIARY_SELECTIONS])
+        .where('space.id = :spaceId', { spaceId: 'D' })
+        .andWhere('category.id = :categoryId', { categoryId })
+        .andWhere('diary.id > :diaryId', { diaryId: page.id_gt || 0 })
+        .orderBy(`diary.${page.sort}`, page.order)
+        .limit(page.limit)
+        .getRawMany();
 
-    // userId가 있을 때만 좋아요 정보 JOIN
+    // 2. 로그인한 경우에만 좋아요 정보 조회
     if (userId) {
-      diaries
-        .leftJoin(DiaryLikeModel, 'diaryLike', 
-            'diaryLike.diary.id = diary.id AND diaryLike.user.id = :userId', 
-            { userId }
-        );
-    }else {
-      // userId가 없을 때는 무조건 false
-      diaries.addSelect('false as "isLiked"');
-  }
+        const likes = await this.diaryLikeRepository
+            .createQueryBuilder('like')
+            .select('like.diary.id')
+            .where('like.user.id = :userId', { userId })
+            .getMany();
 
+        const likedDiaryIds = new Set(likes.map(like => like.diary.id));
+        
+        // 3. 좋아요 정보 추가
+        return diaries.map(diary => ({
+            ...diary,
+            isLiked: likedDiaryIds.has(diary.id)
+        }));
+    }
 
-    return diaries.getRawMany();
+    // 비로그인: 모든 isLiked는 false
+    return diaries.map(diary => ({
+        ...diary,
+        isLiked: false
+    }));
   }
 
   /**
    * 다이어리 아이디에 해당하는 다이어리 조회
    */
-  async findDiaryById(id: number) {
+  async findDiaryById(id: number, userId?: number) {
     const diary = await this.getBaseDiaryQueryBuilder()
       .select([
         ...DEFAULT_DIARY_SELECTIONS,
@@ -84,17 +94,38 @@ export class DiaryQuery {
       return null;
     }
 
-    // 태그 조회
-    const tags = await this.diaryRepository
+      // 태그 조회
+      const tags = await this.diaryRepository
       .createQueryBuilder('diary')
       .select('tags.name', 'name')
       .leftJoin('diary.tags', 'tags')
       .where('diary.id = :id', { id })
       .getRawMany();
+    
+    // 2. 로그인한 경우에만 좋아요 정보 조회
+    if (userId) {
+      const likes = await this.diaryLikeRepository
+          .createQueryBuilder('like')
+          .select('like.diary.id')
+          .where('like.user.id = :userId', { userId })
+          .getMany();
+
+      const likedDiaryIds = new Set(likes.map(like => like.diary.id));
+      
+      // 3. 좋아요 정보 추가
+      return {
+          ...diary,
+          isLiked: likedDiaryIds.has(diary.id),
+          tag_names: tags.map(tag => tag.name)
+      };
+  }
+
+
 
     return {
       ...diary,
-      tag_names: tags.map(tag => tag.name)
+      tag_names: tags.map(tag => tag.name),
+      isLiked: false
     };
   }
 

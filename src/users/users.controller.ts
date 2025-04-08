@@ -2,8 +2,7 @@ import { Body, Controller, Get, Post, Req, UploadedFile, UseGuards, UseIntercept
 import { UsersService } from './users.service';
 import { UserModel } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { RefreshTokenGuard } from 'src/auth/guard/bearer-token.guard';
-import { OptionalBearerTokenGuard } from 'src/auth/guard/optional-token.guard';
+import { RefreshTokenGuard } from 'src/common/guards/bearer-token.guard';
 
 @Controller('users')
 export class UsersController {
