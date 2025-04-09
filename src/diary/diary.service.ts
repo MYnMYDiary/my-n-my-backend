@@ -157,7 +157,6 @@ export class DiaryService {
   /**
    * `diary.image`의 이미지 경로: `public/temp`에서 이미지파일을 찾고 이미지가 존재하면 이미지의 경로를  `/public/diary`로 변경해준다
    * @param diary
-   * @throws {BadRequestException} 존재하지 않는 파일 입니다.
    */
   async createDiaryImage(diary: CreateDiaryDto){
     //dto의 이미지 이름을 기반으로 파일의 경로 생성

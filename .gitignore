@@ -46,6 +46,7 @@ lerna-debug.log*
 /public/temp
 /public/diary
 /public/profile
+/public/market/product
 .temp
 .tmp
 

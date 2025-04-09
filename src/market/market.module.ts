@@ -7,7 +7,7 @@ import { GuardsModule } from 'src/common/guards/guards.module';
 import { UsersModule } from 'src/users/users.module';
 import { MarketSubscribeModel } from './entities/market-subscribe.entity';
 import { MarketSubscribeQuery } from './queries/market-subscribe.query';
-
+import { MarketProductModule } from './market-product/market-product.module';
 
 
 @Module({
@@ -18,6 +18,7 @@ import { MarketSubscribeQuery } from './queries/market-subscribe.query';
     ]),
     GuardsModule,
     UsersModule,
+    MarketProductModule,
   ],
   controllers: [MarketController],
   providers: [MarketService, MarketSubscribeQuery],

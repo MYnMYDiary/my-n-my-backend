@@ -9,7 +9,7 @@ import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "type
 export abstract class BaseModel {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id: number;  
 
     @UpdateDateColumn({
         type: 'timestamptz',

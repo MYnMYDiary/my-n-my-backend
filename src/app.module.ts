@@ -17,9 +17,11 @@ import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 import { TagModel } from './diary/entities/tag.entity';
 import { DiaryLikeModel } from './diary/entities/like.entity';
 import { MarketModule } from './market/market.module';
-import { GuardsModule } from './common/guards/guards.module';
 import { MarketModel } from './market/entities/market.entity';
 import { MarketSubscribeModel } from './market/entities/market-subscribe.entity';
+import { MarketProductModel } from './market/market-product/entities/market-product.entity';
+import { MarketProductModule } from './market/market-product/market-product.module';
+import { MarketProductCategoryModel } from './market/market-product/entities/market-product-category.entity';
 
 @Module({
   imports: [
@@ -52,13 +54,16 @@ import { MarketSubscribeModel } from './market/entities/market-subscribe.entity'
         TagModel,
         DiaryLikeModel,
         MarketModel,
-        MarketSubscribeModel
+        MarketSubscribeModel,
+        MarketProductModel,
+        MarketProductCategoryModel
       ],
       synchronize: true, //실제로 운영할 때는 false로 해야된다 안그러면 큰일난다!
     }),
     AuthModule,
     UsersModule,
     MarketModule,
+    MarketProductModule,
     DiaryModule,
     CommonModule,
   ],

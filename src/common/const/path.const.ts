@@ -43,3 +43,10 @@ export const TEMP_FOLDER_PATH = join(PUBLIC_FOLDER_PATH, PATH_TEMP);
  * @description 절대경로: 프로필 이미지 저장 폴더
  */
 export const PROFILE_IMAGE_PATH = join(PUBLIC_FOLDER_PATH, PATH_PROFILE);
+
+
+/**
+ * {project-path}/public/market/product
+ * @description 절대경로: 마켓 이미지 저장 폴더
+ */
+export const MARKET_PRODUCT_IMAGE_PATH = join(PUBLIC_FOLDER_PATH, 'market/product');
