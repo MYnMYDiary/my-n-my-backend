@@ -29,7 +29,7 @@ import { JwtAuthModule } from './jwt/jwt.module';
       },
       storage: multer.diskStorage({
         destination: function(req, file, callback){ callback(null, TEMP_FOLDER_PATH); },
-        filename: function(rea, file, callback){ callback(null, `${uuid()}${extname(file.originalname)}`) }
+        filename: function(rea, file, callback){ callback(null, `${file.originalname}`) }
       })
     }),
     forwardRef(() => AuthModule),
