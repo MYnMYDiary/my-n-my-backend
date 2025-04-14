@@ -68,6 +68,15 @@ export class MarketService {
     }   
 
     /**
+     * 마켓 상세 조회
+     * @param id 
+     * @returns 
+     */
+    async getMarketById(id: number){
+        return this.marketRepository.findOne({where: {id}});
+    }
+
+    /**
      * 마켓 구독
      * @param userId 
      * @param marketId 

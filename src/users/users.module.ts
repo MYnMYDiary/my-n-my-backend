@@ -9,10 +9,15 @@ import multer from 'multer';
 import { PROFILE_IMAGE_PATH } from 'src/common/const/path.const';
 import {v4 as uuid} from 'uuid'
 import { AuthModule } from 'src/auth/auth.module';
+import { MarketService } from 'src/market/market.service';
+import { MarketModel } from 'src/market/entities/market.entity';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([UserModel]),
+    TypeOrmModule.forFeature([
+      UserModel,
+      MarketModel,
+    ]),
     MulterModule.register({
       limits:{
         fileSize: 2300000, //byte 단위: 2.3MB

@@ -18,7 +18,8 @@ export class UsersController {
   getMyInfo(@Req() request: any) {
     // 유저 아이디
     const userId = request.user.id;
-    return this.usersService.getMyInfo(userId);
+    const userRole = request.user.role;
+    return this.usersService.getMyInfo(userId, userRole);
   }
 
 

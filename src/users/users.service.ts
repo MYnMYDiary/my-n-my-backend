@@ -6,6 +6,8 @@ import { join } from 'path';
 import { PROFILE_IMAGE_PATH } from 'src/common/const/path.const';
 import * as fs from 'fs';
 import { DEFAULT_USER_SELECTIONS } from './const/userQuery.const';
+import { UserRole } from './const/user.const';
+import { MarketModel } from 'src/market/entities/market.entity';
 
 
 @Injectable()
@@ -13,7 +15,9 @@ export class UsersService {
 
     constructor(
         @InjectRepository(UserModel)
-        private readonly userRepository: Repository<UserModel>
+        private readonly userRepository: Repository<UserModel>,
+        @InjectRepository(MarketModel)
+        private readonly marketRepository: Repository<MarketModel>
     ) {}
 
     /**
@@ -47,13 +51,33 @@ export class UsersService {
      * @param userId 유저 아이디
      * @returns 유저 정보
      */
-    async getMyInfo(userId: number) {
-        const user = await this.userRepository.createQueryBuilder('user')
+    async getMyInfo(userId: number, userRole: UserRole) {
+        if(userRole === UserRole.USER){
+            const user = await this.userRepository.createQueryBuilder('user')
+                .select([...DEFAULT_USER_SELECTIONS])
+                .where('user.id = :userId', { userId })
+                .getRawOne();
+
+            return user;
+        }
+
+        if(userRole === UserRole.ARTIST){
+            const user = await this.userRepository
+            .createQueryBuilder('user')
             .select([...DEFAULT_USER_SELECTIONS])
             .where('user.id = :userId', { userId })
             .getRawOne();
 
-        return user;
+            const market = await this.marketRepository
+            .createQueryBuilder('market')
+            .select('market.id', 'id')
+            .where('market.userId = :userId', { userId })
+            .getRawOne();
+
+            const userInfo = {...user, market: market.id}
+
+            return userInfo;
+        }
     }
 
     /**

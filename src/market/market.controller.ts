@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { CreateMarketDto } from './dto/create-market.dto';
 import { RefreshTokenGuard } from 'src/common/guards/bearer-token.guard';
@@ -27,7 +27,7 @@ createMarket(
   return this.marketService.createMarket(createMarketDto, userId);
 }
 
-//마켓 조회
+//전체 마켓 조회
 @Get()
 @UseGuards(OptionalBearerTokenGuard)
 getMarket(
@@ -35,6 +35,15 @@ getMarket(
 ) {
   const userId: number = request.user?.id;
   return this.marketService.getMarket(userId);
+}
+
+//마켓 조회
+@Get(':id')
+@UseGuards(OptionalBearerTokenGuard)
+getMarketById(
+  @Param('id') id: number
+) {
+  return this.marketService.getMarketById(id);
 }
 
 //마켓 구독

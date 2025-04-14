@@ -20,6 +20,7 @@ import { MarketProductModule } from './market-product/market-product.module';
     UsersModule,
     MarketProductModule,
   ],
+  exports: [MarketService],
   controllers: [MarketController],
   providers: [MarketService, MarketSubscribeQuery],
 })

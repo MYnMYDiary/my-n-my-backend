@@ -12,6 +12,7 @@ import {v4 as uuid} from 'uuid'
 import { MARKET_PRODUCT_IMAGE_PATH } from 'src/common/const/path.const';
 import { MarketModel } from '../entities/market.entity';
 import { MarketProductCategoryModel } from './entities/market-product-category.entity';
+import { MarketProductQuery } from './queries/market-product.query';
 
 @Module({
   imports: [
@@ -40,6 +41,6 @@ import { MarketProductCategoryModel } from './entities/market-product-category.e
     }),
   ],
   controllers: [MarketProductController],
-  providers: [MarketProductService],
+  providers: [MarketProductService, MarketProductQuery],
 })
 export class MarketProductModule {}

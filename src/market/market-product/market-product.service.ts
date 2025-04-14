@@ -8,6 +8,7 @@ import { MarketProductCategory } from './const/product-category-enum.const';
 import { MARKET_PRODUCT_IMAGE_PATH, TEMP_FOLDER_PATH } from 'src/common/const/path.const';
 import { basename, join } from 'path';
 import { promises } from 'fs';
+import { MarketProductQuery } from './queries/market-product.query';
 @Injectable()
 export class MarketProductService {
 
@@ -16,6 +17,7 @@ export class MarketProductService {
         private readonly marketProductRepository: Repository<MarketProductModel>,
         @InjectRepository(MarketModel)
         private readonly marketRepository: Repository<MarketModel>,
+        private readonly marketProductQuery: MarketProductQuery
     ) {}
 
     // 유저 아이디로 마켓 아이디 찾기
@@ -81,28 +83,16 @@ export class MarketProductService {
      * 마켓 상품 전체 조회
      * @param id 상품 아이디
      */
-    async getMarketProduct(category?: MarketProductCategory){
-        let marketProduct;
-
-        if(category){
-            marketProduct = await this.marketProductRepository.find({where: {category: category as MarketProductCategory}});
-        }else{
-            marketProduct = await this.marketProductRepository.find();
-        }
-
-        if(!marketProduct){
-            throw new NotFoundException('상품을 찾을 수 없습니다.');
-        }
-
-        return marketProduct;
+    async getMarketProduct(marketId: number, category?: MarketProductCategory){
+        return this.marketProductQuery.findAllMarketProducts(marketId, category);
     }
 
     /** 
      * 마켓 상품 상세 조회
      * @param id 상품 아이디
      */
-    async getMarketProductById(id: number){
-        const marketProduct = await this.marketProductRepository.findOne({where: {id: id}});    
+    async getMarketProductById(marketId: number, id: number){
+        const marketProduct = await this.marketProductRepository.findOne({where: {id: id, marketId: marketId}});    
 
         if(!marketProduct){
             throw new NotFoundException('상품을 찾을 수 없습니다.');

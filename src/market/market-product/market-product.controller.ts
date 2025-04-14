@@ -51,22 +51,24 @@ export class MarketProductController {
     return this.marketProductService.deleteMarketProduct(id);
   }
 
-  // 마켓 상품 전체 조회
-  @Get()
+  // 마켓 상품 조회
+  @Get(':marketId')
   @UseGuards(OptionalBearerTokenGuard)
   getMarketProduct(
+    @Param('marketId', ParseIntPipe) marketId: number,
     @Query('category') category?: MarketProductCategory,
   ) {
-    return this.marketProductService.getMarketProduct(category);
+    return this.marketProductService.getMarketProduct(marketId, category);
   }
 
   // 마켓 상품 상세 조회
-  @Get(':id')
+  @Get(':marketId/:id')
   @UseGuards(OptionalBearerTokenGuard)
   getMarketProductById(
+    @Param('marketId', ParseIntPipe) marketId: number,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.marketProductService.getMarketProductById(id);
+    return this.marketProductService.getMarketProductById(marketId, id);
   }
 
 
